@@ -13,7 +13,7 @@ const Layout = ({ children }) => {
       <Navbar onPostClick={() => setIsPostModalOpen(true)} />
       <main className="app-container">
         {/* We use a grid layout only on Home for the 3 columns, other pages have different layouts */}
-        {location.pathname === '/' ? (
+        {location.pathname === '/feed' ? (
           children
         ) : (
           <div style={{ maxWidth: '1128px', width: '100%', padding: '0 16px' }}>
