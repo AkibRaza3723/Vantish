@@ -6,6 +6,7 @@ import Notifications from './pages/Notifications';
 import Profile from './pages/Profile';
 import Landing from './pages/Landing';
 import Signup from './pages/Signup';
+import Signin from './pages/Signin';
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         {/* Public Routes without Layout */}
         <Route path="/" element={<Landing />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/signin" element={<Signin />} />
 
         {/* Authenticated Routes with Layout */}
         <Route path="/feed" element={<Layout><Home /></Layout>} />

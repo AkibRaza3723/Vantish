@@ -1,0 +1,104 @@
+# ===========================
+# Linkout Monorepo .gitignore
+# ===========================
+
+# ── Dependencies ──────────────────────────────────────────────────────────────
+node_modules/
+jspm_packages/
+web_modules/
+
+# ── Build Outputs ─────────────────────────────────────────────────────────────
+dist/
+dist-ssr/
+build/
+build/Release
+out/
+*.tsbuildinfo
+
+# ── Environment Variables ──────────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+
+# ── Prisma Generated ──────────────────────────────────────────────────────────
+src/generated/prisma/
+**/generated/prisma/
+
+# ── Logs ──────────────────────────────────────────────────────────────────────
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+.pnpm-debug.log*
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# ── Runtime / Process ─────────────────────────────────────────────────────────
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# ── Testing & Coverage ────────────────────────────────────────────────────────
+coverage/
+*.lcov
+.nyc_output/
+lib-cov/
+
+# ── Cache ─────────────────────────────────────────────────────────────────────
+.cache/
+.parcel-cache/
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+.eslintcache
+.npm/
+.grunt/
+.fusebox/
+.dynamodb/
+.serverless/
+.vuepress/dist
+
+# ── Package Manager ───────────────────────────────────────────────────────────
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+.yarn-integrity
+*.tgz
+bower_components/
+.lock-wscript
+
+# ── Next / Nuxt ───────────────────────────────────────────────────────────────
+.next/
+.nuxt/
+
+# ── macOS ─────────────────────────────────────────────────────────────────────
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# ── Editor & IDE ──────────────────────────────────────────────────────────────
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.vscode-test
+.tern-port
+
+# ── Misc ──────────────────────────────────────────────────────────────────────
+*.local
+.node_repl_history
+skills-lock.json

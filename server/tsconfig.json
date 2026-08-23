@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "lib": [
-      "esnext"
+      "ESNext"
     ],
     "types": [
       "node"
