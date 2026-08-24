@@ -22,6 +22,9 @@ model User {
   updatedAt     DateTime  @updatedAt
   sessions      Session[]
   accounts      Account[]
+  posts         Posts[]
+  votes         Votes[]
+  comments      Comments[]
 
   @@unique([email])
   @@map("user")
@@ -75,4 +78,81 @@ model Verification {
 
   @@index([identifier])
   @@map("verification")
+}
+
+
+enum Category{
+  EXPECTATION_VS_REALITY
+  RED_FLAG
+  BURNOUT_LOG
+  COMPENSATION
+  CULTURE
+}
+
+
+
+
+
+model Posts{
+  id String @id @default(uuid())
+  authorId String
+  content String 
+  imageUrl String?
+  related Int @default(0)
+  notRelated Int @default(0)
+  category Category
+  stressRating Int @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  votes Votes[]
+  comments Comments[]
+  moderationFlags ModerationFlags[]
+
+  @@map("posts")
+}
+
+
+enum VoteType{
+  RELATED
+  NOT_RELATED
+}
+
+
+
+model Votes{
+  id String @id @default(uuid())
+  postId String
+  voterId String
+  voteType VoteType
+  post Posts @relation(fields: [postId], references: [id], onDelete: Cascade)
+  voter User @relation(fields: [voterId], references: [id], onDelete: Cascade)
+
+  @@map("votes")
+  @@unique([postId, voterId], map: "votes_postId_voterId_uidx")
+}
+
+model Comments{
+  id String @id @default(uuid())
+  content String
+  postId String
+  authorId String
+  upvoteCount Int @default(0)
+  downvoteCount Int @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  post Posts @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@map("comments")
+}
+
+model ModerationFlags{
+  id String @id @default(uuid())
+  postId String
+  reason String 
+  createdAt DateTime @default(now())
+  post Posts @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@map("moderationFlags")
 }
