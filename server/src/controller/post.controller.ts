@@ -144,6 +144,16 @@ export async function getPostsByUser(req: Request, res: Response) {
                     _count: {
                         select: { comments: true, votes: true },
                     },
+                    comments:{
+                        select:{
+                            id: true,
+                            content: true,
+                            createdAt: true,
+                            author: {
+                                select: { id: true, name: true, image: true },
+                            },
+                        }
+                    }
                 },
             }),
             prisma.posts.count({ where: { authorId: userId as string} }),
