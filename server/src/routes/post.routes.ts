@@ -11,12 +11,12 @@ import {
 
 const router = Router();
 
-// ── Public routes (no login required) ──────────────────────
+// Public routes (no login required)
 router.get("/feed", getFeed);
 router.get("/user/:userId", getPostsByUser);
 router.get("/:postId", getPostById);
 
-// ── Protected routes (login required) ──────────────────────
+// Protected routes (login required)
 router.post("/", requireAuth, createPost);
 router.put("/:postId", requireAuth, updatePost);
 router.delete("/:postId", requireAuth, deletePost);

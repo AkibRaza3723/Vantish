@@ -5,10 +5,6 @@ import {
     updatePostSchema,
 } from "../validators/post.validator.js";
 
-// ─────────────────────────────────────────────
-// POST /api/posts
-// Create a new post (auth required)
-// ─────────────────────────────────────────────
 export async function createPost(req: Request, res: Response) {
     const parsed = createPostSchema.safeParse(req.body);
 
