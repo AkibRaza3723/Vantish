@@ -21,6 +21,7 @@ const Signin = () => {
         email,
         password,
       });
+      //pehle html ko use krke email password nikal rhe then submit pe jab dono hamare pass hai tab yei execute hoga and sign in triggeer hoga // better auth use krega then better auth session store krega then user data store krega. and response mei hame data { user , session } and error message bhejega.
 
       if (authError) {
         setError(authError.message || 'Invalid email or password.');
