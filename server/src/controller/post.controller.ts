@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
-import  prisma  from "../lib/db/dbConnect.js";
+import prisma from "../lib/db/dbConnect.js";
+import imagekit, { toFile } from "../lib/imagekit.js";
 import {
     createPostSchema,
     updatePostSchema,
@@ -16,12 +17,28 @@ export async function createPost(req: Request, res: Response) {
     const authorId = req.session.user.id;
 
     try {
+        // Upload image to ImageKit if one was attached
+        let imageUrl: string | undefined;
+        if (req.file) {
+            const file = await toFile(req.file.buffer, req.file.originalname, {
+                type: req.file.mimetype,
+            });
+            const uploaded = await imagekit.files.upload({
+                file,
+                fileName: `post_${authorId}_${Date.now()}_${req.file.originalname}`,
+                folder: "/posts",
+                useUniqueFileName: true,
+            });
+            imageUrl = uploaded.url;
+        }
+
         const post = await prisma.posts.create({
             data: {
                 content,
                 category,
                 stressRating,
                 authorId,
+                ...(imageUrl && { imageUrl }),
             },
             include: {
                 author: {
@@ -256,3 +273,82 @@ export async function deletePost(req: Request, res: Response) {
         return res.status(500).json({ error: "Internal server error" });
     }
 }
+
+// ─────────────────────────────────────────────
+// POST /api/v1/post/:postId/report
+// Report a post (auth required). Auto-deletes at 5 reports.
+// ─────────────────────────────────────────────
+export async function reportPost(req: Request, res: Response) {
+    const { postId } = req.params;
+    const reporterId = req.session.user.id;
+    const { reason } = req.body;
+
+    if (!reason || typeof reason !== "string" || reason.trim() === "") {
+        return res.status(400).json({ error: "A reason is required to report a post" });
+    }
+
+    try {
+        // 1. Make sure the post exists
+        const post = await prisma.posts.findUnique({
+            where: { id: postId as string },
+        });
+
+        if (!post) {
+            return res.status(404).json({ error: "Post not found" });
+        }
+
+        // 2. Prevent the author from reporting their own post
+        if (post.authorId === reporterId) {
+            return res.status(403).json({ error: "You cannot report your own post" });
+        }
+
+        // 3. Create the flag (unique constraint prevents duplicates per user)
+        try {
+            await prisma.moderationFlags.create({
+                data: {
+                    postId: postId as string,
+                    reporterId,
+                    reason: reason.trim(),
+                },
+            });
+        } catch (err: any) {
+            // Unique constraint violation → user already reported this post
+            if (err?.code === "P2002") {
+                return res.status(409).json({ error: "You have already reported this post" });
+            }
+            throw err;
+        }
+
+        // 4. Count total reports for this post
+        const flagCount = await prisma.moderationFlags.count({
+            where: { postId: postId as string },
+        });
+
+        const REPORT_THRESHOLD = 5;
+
+        // 5. Auto-delete the post once it hits the threshold
+        if (flagCount >= REPORT_THRESHOLD) {
+            await prisma.posts.delete({ where: { id: postId as string } });
+            return res.status(200).json({
+                message: "Post has been removed due to multiple reports",
+                autoDeleted: true,
+            });
+        }
+
+        return res.status(201).json({
+            message: "Post reported successfully",
+            autoDeleted: false,
+            reportCount: flagCount,
+        });
+    } catch (error) {
+        return res.status(500).json({ error: "Internal server error" });
+    }
+}
+
+//Report endpoint behaviour:
+// 400 — missing/empty reason
+// 404 — post doesn't exist
+// 403 — author trying to report their own post
+// 409 — user already reported this post
+// 201 — report recorded (returns reportCount)
+// 200 + autoDeleted: true — post auto-deleted after reaching 5 reports

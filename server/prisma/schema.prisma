@@ -22,9 +22,10 @@ model User {
   updatedAt     DateTime  @updatedAt
   sessions      Session[]
   accounts      Account[]
-  posts         Posts[]
-  votes         Votes[]
-  comments      Comments[]
+  posts              Posts[]
+  votes              Votes[]
+  comments           Comments[]
+  moderationFlags    ModerationFlags[]
 
   @@unique([email])
   @@map("user")
@@ -148,11 +149,14 @@ model Comments{
 }
 
 model ModerationFlags{
-  id String @id @default(uuid())
-  postId String
-  reason String 
-  createdAt DateTime @default(now())
-  post Posts @relation(fields: [postId], references: [id], onDelete: Cascade)
+  id         String   @id @default(uuid())
+  postId     String
+  reporterId String
+  reason     String
+  createdAt  DateTime @default(now())
+  post       Posts    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  reporter   User     @relation(fields: [reporterId], references: [id], onDelete: Cascade)
 
+  @@unique([postId, reporterId], map: "moderationFlags_postId_reporterId_uidx")
   @@map("moderationFlags")
 }
