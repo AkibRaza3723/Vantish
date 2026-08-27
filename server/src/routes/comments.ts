@@ -7,11 +7,11 @@ import {
     deleteComment,
 } from "../controller/comments.js";
 
-const router = Router();
+const commentRouter = Router();
 
-router.post("/", requireAuth, createComment);
-router.patch("/:id", requireAuth, updateComment);
-router.get("/:postId", getComments); //only public route 
-router.delete("/:id", requireAuth, deleteComment);
+commentRouter.post("/", requireAuth, createComment);
+commentRouter.patch("/:id", requireAuth, updateComment);
+commentRouter.get("/:postId", getComments); //only public route 
+commentRouter.delete("/:id", requireAuth, deleteComment);
 
-export default router;
+export default commentRouter;

@@ -8,17 +8,22 @@ import {
     updatePost,
     deletePost,
 } from "../controller/post.controller.js";
+import voteRouter from "./votes.routes.js";
 
-const router = Router();
+const postRouter = Router();
 
 // Public routes (no login required)
-router.get("/feed", getFeed);
-router.get("/user/:userId", getPostsByUser);
-router.get("/:postId", getPostById);
+postRouter.get("/feed", getFeed);
+postRouter.get("/user/:userId", getPostsByUser);
+postRouter.get("/:postId", getPostById);
 
 // Protected routes (login required)
-router.post("/", requireAuth, createPost);
-router.put("/:postId", requireAuth, updatePost);
-router.delete("/:postId", requireAuth, deletePost);
+postRouter.post("/",  createPost);
+postRouter.put("/:postId", updatePost);
+postRouter.delete("/:postId",  deletePost);
 
-export default router;
+// ── Nested: /api/v1/post/:postId/vote  &  /api/v1/post/:postId/votes ──
+postRouter.use("/:postId/vote", voteRouter);   // POST  (cast/toggle)
+postRouter.use("/:postId/votes", voteRouter);  // GET   (all votes + /me)
+
+export default postRouter;
