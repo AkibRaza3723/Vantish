@@ -20,6 +20,16 @@ model User {
   image         String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+  username      String?
+  role          String?
+  organizations String?
+  organization_type  String?
+  Experience      Int?
+  course          String?
+  position        String?
+  bio             String?
+  GraduationYear  Int?
+  
   sessions      Session[]
   accounts      Account[]
   posts              Posts[]
@@ -40,6 +50,7 @@ model Session {
   ipAddress String?
   userAgent String?
   userId    String
+
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([token])

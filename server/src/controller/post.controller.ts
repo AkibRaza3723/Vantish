@@ -307,7 +307,7 @@ export async function reportPost(req: Request, res: Response) {
             await prisma.moderationFlags.create({
                 data: {
                     postId: postId as string,
-                    reporterId,
+                    reporterId: reporterId as string,
                     reason: reason.trim(),
                 },
             });
