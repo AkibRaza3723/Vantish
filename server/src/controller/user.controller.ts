@@ -254,3 +254,58 @@ export async function deleteMyAccount(req: Request, res: Response) {
         return res.status(500).json({ error: "Internal server error" });
     }
 }
+
+// ─────────────────────────────────────────────────────────────────
+// GET /api/v1/user/search?q=<query>
+// Search users by username OR organization name (partial, case-insensitive)
+// Excludes the currently logged-in user from results
+// ─────────────────────────────────────────────────────────────────
+export async function searchUsers(req: Request, res: Response) {
+    const query = String(req.query.q ?? "").trim();
+    const currentUserId = req.session.user.id;
+
+    if (!query || query.length < 1) {
+        return res.status(400).json({ error: "Search query 'q' is required" });
+    }
+
+    try {
+        const users = await prisma.user.findMany({
+            where: {
+                // Exclude the searcher themselves
+                NOT: { id: currentUserId },
+                // Match on username OR organizations — partial, case-insensitive
+                OR: [
+                    {
+                        username: {
+                            contains: query,
+                            mode: "insensitive",
+                        },
+                    },
+                    {
+                        organizations: {
+                            contains: query,
+                            mode: "insensitive",
+                        },
+                    },
+                ],
+            },
+            select: {
+                id: true,
+                name: true,
+                username: true,
+                image: true,
+                role: true,
+                organizations: true,
+                organization_type: true,
+                bio: true,
+                position: true,
+            },
+            take: 20, // cap results — add pagination later if needed
+        });
+
+        return res.status(200).json({ results: users, count: users.length });
+    } catch (error) {
+        return res.status(500).json({ error: "Internal server error" });
+    }
+}
+

@@ -6,9 +6,17 @@ import {
     getUserById,
     updateMyProfile,
     deleteMyAccount,
+    searchUsers,
 } from "../controller/user.controller.js";
 
 const userRouter = Router();
+
+// ── Search (protected) ────────────────────────────────────────────
+// ⚠️  MUST be registered BEFORE /:userId
+//     If /:userId comes first, Express captures "search" as a userId param
+//     and searchUsers is never called.
+// GET /api/v1/user/search?q=<query>  — search by username or org name
+userRouter.get("/search", requireAuth, searchUsers);
 
 // ── Public routes ─────────────────────────────────────────────────
 // Anyone can view a user's profile by their ID
