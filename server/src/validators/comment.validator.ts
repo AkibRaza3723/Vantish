@@ -13,6 +13,11 @@ export const commentParamsSchema = z.object({
     id: z.string().uuid("Invalid comment ID"),
 });
 
+export const reportCommentSchema = z.object({
+    reason: z.string().min(1, "A reason is required to report a comment").max(500, "Reason cannot exceed 500 characters"),
+});
+
 export type CreateCommentInput = z.infer<typeof createCommentSchema>;
 export type UpdateCommentInput = z.infer<typeof updateCommentSchema>;
 export type CommentParams = z.infer<typeof commentParamsSchema>;
+export type ReportCommentInput = z.infer<typeof reportCommentSchema>;

@@ -36,6 +36,7 @@ model User {
   votes              Votes[]
   comments           Comments[]
   moderationFlags    ModerationFlags[]
+  commentReportFlags CommentReportFlags[]
 
   @@unique([email])
   @@map("user")
@@ -151,10 +152,12 @@ model Comments{
   authorId String
   upvoteCount Int @default(0)
   downvoteCount Int @default(0)
+  isHidden Boolean @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
   post Posts @relation(fields: [postId], references: [id], onDelete: Cascade)
+  reportFlags CommentReportFlags[]
 
   @@map("comments")
 }
@@ -170,4 +173,17 @@ model ModerationFlags{
 
   @@unique([postId, reporterId], map: "moderationFlags_postId_reporterId_uidx")
   @@map("moderationFlags")
+}
+
+model CommentReportFlags {
+  id         String   @id @default(uuid())
+  commentId  String
+  reporterId String
+  reason     String
+  createdAt  DateTime @default(now())
+  comment    Comments @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  reporter   User     @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+
+  @@unique([commentId, reporterId], map: "commentReportFlags_commentId_reporterId_uidx")
+  @@map("commentReportFlags")
 }

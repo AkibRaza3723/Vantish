@@ -3,6 +3,7 @@ import prisma from "../lib/db/dbConnect.js";
 import {
     createCommentSchema,
     updateCommentSchema,
+    reportCommentSchema,
 } from "../validators/comment.validator.js";
 
 export async function createComment(req: Request, res: Response) {
@@ -66,7 +67,7 @@ export async function getComments(req: Request, res: Response) {
     const postId = String(req.params.postId);  
     try {
         const comments = await prisma.comments.findMany({
-            where: { postId },
+            where: { postId, isHidden: false },
             orderBy: { createdAt: "desc" },
             include: {
                 author: {
@@ -97,3 +98,66 @@ export async function deleteComment(req: Request, res: Response) {
         return res.status(500).json({ error: "Internal server error" });
     }
 }
+
+export async function reportComment(req: Request, res: Response) {
+    const commentId = String(req.params.commentId);
+    const reporterId = req.session.user.id;
+
+    const parsed = reportCommentSchema.safeParse(req.body);
+    if (!parsed.success) {
+        return res.status(400).json({ error: parsed.error.flatten().fieldErrors });
+    }
+    const { reason } = parsed.data;
+
+    try {
+        // 1. Make sure the comment exists
+        const comment = await prisma.comments.findUnique({
+            where: { id: commentId },
+        });
+
+        if (!comment) {
+            return res.status(404).json({ error: "Comment not found" });
+        }
+
+        // 2. Prevent the author from reporting their own comment
+        if (comment.authorId === reporterId) {
+            return res.status(403).json({ error: "You cannot report your own comment" });
+        }
+
+        // 3. Create the report flag (unique constraint prevents duplicates per user)
+        try {
+            await prisma.commentReportFlags.create({
+                data: {
+                    commentId,
+                    reporterId,
+                    reason: reason.trim(),
+                },
+            });
+        } catch (err: any) {
+            if (err?.code === "P2002") {
+                return res.status(409).json({ error: "You have already reported this comment" });
+            }
+            throw err;
+        }
+
+        // 4. Hide the comment immediately on first report
+        await prisma.comments.update({
+            where: { id: commentId },
+            data: { isHidden: true },
+        });
+
+        return res.status(201).json({
+            message: "Comment reported and hidden successfully",
+            hidden: true,
+        });
+    } catch (error) {
+        return res.status(500).json({ error: "Internal server error" });
+    }
+}
+
+// Report comment endpoint behaviour:
+// 400 — missing/invalid reason
+// 404 — comment doesn't exist
+// 403 — author trying to report their own comment
+// 409 — user already reported this comment
+// 201 — report recorded, comment hidden (hidden: true)
