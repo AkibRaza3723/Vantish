@@ -36,6 +36,9 @@ model User {
   votes              Votes[]
   comments           Comments[]
   moderationFlags    ModerationFlags[]
+  Receiver          Connection[] @relation("Receiver")
+  Sender           Connection[] @relation("Sender")
+  commentReportFlags CommentReportFlags[]
 
   @@unique([email])
   @@map("user")
@@ -172,4 +175,37 @@ model ModerationFlags{
 
   @@unique([postId, reporterId], map: "moderationFlags_postId_reporterId_uidx")
   @@map("moderationFlags")
+}
+
+model Connection{
+  id String @id @default(uuid())
+  senderId String
+  receiverId String
+  status ConnectionStatus @default(PENDING)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  sender User @relation("Sender",fields: [senderId], references: [id], onDelete: Cascade)
+  receiver User @relation("Receiver",fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@unique([senderId, receiverId], map: "connections_senderId_receiverId_uidx")
+  @@map("connections")
+}
+
+enum ConnectionStatus{
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+model CommentReportFlags {
+  id         String   @id @default(uuid())
+  commentId  String
+  reporterId String
+  reason     String
+  createdAt  DateTime @default(now())
+  comment    Comments @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  reporter   User     @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+
+  @@unique([commentId, reporterId], map: "commentReportFlags_commentId_reporterId_uidx")
+  @@map("commentReportFlags")
 }

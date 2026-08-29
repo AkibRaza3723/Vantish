@@ -18,7 +18,7 @@ export async function sendRequest(req: Request, res: Response) {
 
     try {
         // Guard: check if receiver exists
-        const receiver = await prisma.user.findUnique({ where: { id: receiverId } });
+        const receiver = await prisma.user.findUnique({ where: { id: receiverId as string } });
         if (!receiver) {
             return res.status(404).json({ error: "User not found" });
         }
@@ -27,8 +27,8 @@ export async function sendRequest(req: Request, res: Response) {
         const existing = await prisma.connection.findFirst({
             where: {
                 OR: [
-                    { senderId, receiverId },
-                    { senderId: receiverId, receiverId: senderId },
+                    { senderId, receiverId: receiverId as string },
+                    { senderId: receiverId as string, receiverId: senderId },
                 ],
             },
         });
@@ -41,7 +41,7 @@ export async function sendRequest(req: Request, res: Response) {
         }
 
         const connection = await prisma.connection.create({
-            data: { senderId, receiverId },
+            data: { senderId, receiverId: receiverId as string },
             select: {
                 id: true,
                 status: true,
@@ -78,7 +78,7 @@ export async function respondToRequest(req: Request, res: Response) {
 
     try {
         const connection = await prisma.connection.findUnique({
-            where: { id: connectionId },
+            where: { id: connectionId as string },
         });
 
         if (!connection) {
@@ -98,7 +98,7 @@ export async function respondToRequest(req: Request, res: Response) {
         }
 
         const updated = await prisma.connection.update({
-            where: { id: connectionId },
+            where: { id: connectionId as string },
             data: { status: action },
             select: {
                 id: true,
@@ -127,7 +127,7 @@ export async function removeConnection(req: Request, res: Response) {
 
     try {
         const connection = await prisma.connection.findUnique({
-            where: { id: connectionId },
+            where: { id: connectionId as string },
         });
 
         if (!connection) {
@@ -139,7 +139,7 @@ export async function removeConnection(req: Request, res: Response) {
             return res.status(403).json({ error: "Forbidden" });
         }
 
-        await prisma.connection.delete({ where: { id: connectionId } });
+        await prisma.connection.delete({ where: { id: connectionId as string } });
 
         return res.status(200).json({ message: "Connection removed" });
     } catch (error) {
@@ -176,7 +176,7 @@ export async function getMyConnections(req: Request, res: Response) {
         const connectedUsers = connections.map((c) => ({
             connectionId: c.id,
             connectedAt: c.createdAt,
-            user: c.senderId === userId ? c.receiver : c.sender,
+            user: c.sender.id === userId ? c.receiver : c.sender,
         }));
 
         return res.status(200).json({
