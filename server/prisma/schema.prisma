@@ -36,8 +36,6 @@ model User {
   votes              Votes[]
   comments           Comments[]
   moderationFlags    ModerationFlags[]
-  Receiver          Connection[] @relation("Receiver")
-  Sender           Connection[] @relation("Sender")
 
   @@unique([email])
   @@map("user")
@@ -153,10 +151,12 @@ model Comments{
   authorId String
   upvoteCount Int @default(0)
   downvoteCount Int @default(0)
+  isHidden Boolean @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
   post Posts @relation(fields: [postId], references: [id], onDelete: Cascade)
+  reportFlags CommentReportFlags[]
 
   @@map("comments")
 }
@@ -172,24 +172,4 @@ model ModerationFlags{
 
   @@unique([postId, reporterId], map: "moderationFlags_postId_reporterId_uidx")
   @@map("moderationFlags")
-}
-
-model Connection{
-  id String @id @default(uuid())
-  senderId String
-  receiverId String
-  status ConnectionStatus @default(PENDING)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  sender User @relation("Sender",fields: [senderId], references: [id], onDelete: Cascade)
-  receiver User @relation("Receiver",fields: [receiverId], references: [id], onDelete: Cascade)
-
-  @@unique([senderId, receiverId], map: "connections_senderId_receiverId_uidx")
-  @@map("connections")
-}
-
-enum ConnectionStatus{
-  PENDING
-  ACCEPTED
-  REJECTED
 }
