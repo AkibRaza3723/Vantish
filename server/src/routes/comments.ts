@@ -13,7 +13,7 @@ const commentRouter = Router();
 commentRouter.post("/", requireAuth, createComment);
 commentRouter.patch("/:id", requireAuth, updateComment);
 commentRouter.get("/:postId", getComments); //only public route 
-commentRouter.delete("/:id", requireAuth, deleteComment);
+commentRouter.delete("/:commentId", requireAuth, deleteComment);
 commentRouter.post("/:commentId/report", requireAuth, reportComment);
 
 export default commentRouter;

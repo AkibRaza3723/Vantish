@@ -18,21 +18,21 @@ const userRouter = Router();
 // GET /api/v1/user/search?q=<query>  — search by username or org name
 userRouter.get("/search", requireAuth, searchUsers);
 
-// ── Public routes ─────────────────────────────────────────────────
-// Anyone can view a user's profile by their ID
-userRouter.get("/:userId", getUserById);
-
 // ── Protected routes (login required) ────────────────────────────
-// POST  /api/v1/user/complete-profile  — called once after signup
+// POST  /api/user/complete-profile  — called once after signup
 userRouter.post("/complete-profile", requireAuth, completeProfile);
 
-// GET   /api/v1/user/me                — get own profile
+// GET   /api/user/me                — get own profile
 userRouter.get("/me", requireAuth, getMyProfile);
 
-// PATCH /api/v1/user/me/profile        — partial update own profile
+// PATCH /api/user/me/profile        — partial update own profile
 userRouter.patch("/me/profile", requireAuth, updateMyProfile);
 
-// DELETE /api/v1/user/me               — delete own account
+// DELETE /api/user/me               — delete own account
 userRouter.delete("/me", requireAuth, deleteMyAccount);
+
+// ── Public routes (wildcard should be registered last) ─────────────
+// Anyone can view a user's profile by their ID
+userRouter.get("/:userId", getUserById);
 
 export default userRouter;

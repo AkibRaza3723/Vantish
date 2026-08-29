@@ -1,99 +1,229 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import LeftSidebar from '../components/LeftSidebar';
 import RightSidebar from '../components/RightSidebar';
 import PostCard from '../components/PostCard';
 import CreatePostModal from '../components/CreatePostModal';
-import { Image, Video, Calendar, FileText } from 'lucide-react';
+import { SkeletonCard } from '../components/SkeletonLoader';
+import { postsApi } from '../api/posts';
+import { Image, FileText, AlertOctagon } from 'lucide-react';
 import './Home.css';
 
-const MOCK_POSTS = [
-  {
-    id: 1,
-    author: 'Anonymous 🦊',
-    role: 'Software Engineer @ BigTech',
-    time: '2h',
-    content: 'Just had my 1-on-1. Manager said I need to "increase my visibility." I guess I\'ll start wearing neon green to the office? 🤷‍♂️',
-    likes: 342,
-    comments: 45,
-    shares: 12,
-    avatarEmoji: '🦊'
-  },
-  {
-    id: 2,
-    author: 'Secret Founder 🦄',
-    role: 'CEO @ Stealth Startup',
-    time: '5h',
-    content: 'Unpopular opinion: If your startup depends on people working 80 hours a week for average pay, you don\'t have a viable business model. You have a cult.',
-    likes: 8901,
-    comments: 1205,
-    shares: 432,
-    avatarEmoji: '🦄'
-  },
-  {
-    id: 3,
-    author: 'Tired CS Student 🦉',
-    role: 'CS Undergrad @ State Uni',
-    time: '1d',
-    content: 'Professor: "The exam will be exactly like the practice problems."\nThe Exam: Calculate the mass of the sun using only a linked list and a string of spaghetti.',
-    likes: 1204,
-    comments: 89,
-    shares: 210,
-    avatarEmoji: '🦉'
-  }
+const CATEGORIES = [
+  { value: 'ALL', label: 'All Posts' },
+  { value: 'EXPECTATION_VS_REALITY', label: 'Expectation vs Reality' },
+  { value: 'RED_FLAG', label: 'Red Flags' },
+  { value: 'BURNOUT_LOG', label: 'Burnout Logs' },
+  { value: 'COMPENSATION', label: 'Compensation' },
+  { value: 'CULTURE', label: 'Culture' }
 ];
 
 const Home = () => {
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('ALL');
+  
+  // Pagination
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  const fetchFeedPosts = async (currentPage, reset = false) => {
+    if (reset) {
+      setLoading(true);
+    } else {
+      setLoadingMore(true);
+    }
+    setError('');
+
+    try {
+      // Feed API does not support direct category filters in the core backend route parameters (based on controller inspection),
+      // so we load posts and optionally filter them client-side if a specific category is chosen, OR load all.
+      // Let's load feed posts. We fetch 20 posts so we have plenty to show and filter.
+      const response = await postsApi.getFeed(currentPage, 30);
+      const newPosts = response.posts || [];
+      
+      setPosts((prev) => (reset ? newPosts : [...prev, ...newPosts]));
+      if (response.pagination) {
+        setTotalPages(response.pagination.totalPages || 1);
+      }
+    } catch (err) {
+      setError(err.message || 'Could not load feed posts. Please try again.');
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchFeedPosts(1, true);
+  }, []);
+
+  const handlePostCreated = () => {
+    // Reload feed from step 1
+    setPage(1);
+    fetchFeedPosts(1, true);
+  };
+
+  const handlePostRemoved = (postId) => {
+    setPosts((prev) => prev.filter((p) => p.id !== postId));
+  };
+
+  // Filter posts client-side based on category
+  const filteredPosts = selectedCategory === 'ALL' 
+    ? posts 
+    : posts.filter(post => post.category === selectedCategory);
+
+  const loadMore = () => {
+    if (page < totalPages && !loadingMore) {
+      const nextPage = page + 1;
+      setPage(nextPage);
+      fetchFeedPosts(nextPage, false);
+    }
+  };
 
   return (
     <div className="grid-layout">
       <LeftSidebar />
       
       <div className="feed-column">
-        <div className="card create-post-card">
-          <div className="create-post-input-container">
-            <div className="avatar" style={{ width: 48, height: 48, flexShrink: 0 }}>
-              <span style={{ fontSize: 24 }}>👻</span>
+        {/* Composer Start Card */}
+        <div className="card create-post-card" style={{ padding: '16px', border: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-card)', color: 'var(--color-text-primary)' }}>
+          <div className="create-post-input-container" style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+            <div className="avatar" style={{ width: 44, height: 44, flexShrink: 0 }}>
+              <span style={{ fontSize: 22 }}>👻</span>
             </div>
             <button 
               className="create-post-input"
               onClick={() => setIsModalOpen(true)}
+              style={{
+                flexGrow: 1,
+                border: '1px solid var(--color-border)',
+                borderRadius: '24px',
+                padding: '12px 18px',
+                textAlign: 'left',
+                backgroundColor: 'var(--color-bg-app)',
+                color: 'var(--color-text-secondary)',
+                fontSize: '13.5px',
+                fontWeight: 500,
+                cursor: 'pointer'
+              }}
             >
-              Start a post
+              Vent about your experience anonymously...
             </button>
           </div>
           
-          <div className="create-post-actions">
+          <div className="create-post-actions" style={{ display: 'flex', justifyContent: 'space-around', marginTop: '12px', borderTop: '1px solid var(--color-border)', paddingTop: '10px' }}>
             <button className="btn-action" onClick={() => setIsModalOpen(true)}>
-              <Image size={24} color="#70B5F9" />
-              <span className="text-secondary font-semibold">Media</span>
+              <Image size={18} color="#38bdf8" />
+              <span className="text-secondary" style={{ fontWeight: 600, fontSize: '12px' }}>Attach Media</span>
             </button>
             <button className="btn-action" onClick={() => setIsModalOpen(true)}>
-              <Calendar size={24} color="#E7A33E" />
-              <span className="text-secondary font-semibold">Event</span>
-            </button>
-            <button className="btn-action" onClick={() => setIsModalOpen(true)}>
-              <FileText size={24} color="#F5987E" />
-              <span className="text-secondary font-semibold">Write article</span>
+              <AlertOctagon size={18} color="#fb7185" />
+              <span className="text-secondary" style={{ fontWeight: 600, fontSize: '12px' }}>Log Burnout</span>
             </button>
           </div>
         </div>
 
-        <div className="feed-divider">
-          <hr />
-          <span className="text-secondary">Sort by: <strong>Top</strong></span>
+        {/* Category Filters Carousel / Row */}
+        <div className="category-filters-container" style={{ display: 'flex', gap: '8px', overflowX: 'auto', padding: '4px 0 12px 0', margin: '8px 0', scrollbarWidth: 'none' }}>
+          {CATEGORIES.map((cat) => (
+            <button
+              key={cat.value}
+              onClick={() => setSelectedCategory(cat.value)}
+              style={{
+                padding: '6px 14px',
+                borderRadius: '16px',
+                fontSize: '12.5px',
+                fontWeight: 600,
+                whiteSpace: 'nowrap',
+                border: '1px solid var(--color-border)',
+                backgroundColor: selectedCategory === cat.value ? 'var(--color-primary)' : 'var(--color-bg-card)',
+                color: selectedCategory === cat.value ? '#ffffff' : 'var(--color-text-secondary)',
+                transition: 'all 150ms ease'
+              }}
+            >
+              {cat.label}
+            </button>
+          ))}
         </div>
 
+        {/* Error Alert */}
+        {error && (
+          <div className="onboarding-error-alert" style={{ marginBottom: '16px' }}>
+            {error}
+            <button 
+              onClick={() => fetchFeedPosts(1, true)} 
+              style={{ display: 'block', marginTop: '8px', textDecoration: 'underline', color: 'inherit', fontWeight: 600 }}
+            >
+              Retry Loading Feed
+            </button>
+          </div>
+        )}
+
+        {/* Posts Area */}
         <div className="feed-posts">
-          {MOCK_POSTS.map(post => (
-            <PostCard key={post.id} post={post} />
-          ))}
+          {loading ? (
+            <>
+              <SkeletonCard />
+              <SkeletonCard />
+              <SkeletonCard />
+            </>
+          ) : filteredPosts.length > 0 ? (
+            <>
+              {filteredPosts.map((post) => (
+                <PostCard 
+                  key={post.id} 
+                  post={post} 
+                  onPostRemoved={handlePostRemoved} 
+                />
+              ))}
+
+              {/* Load More Button */}
+              {page < totalPages && (
+                <button
+                  onClick={loadMore}
+                  disabled={loadingMore}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    borderRadius: '8px',
+                    border: '1px solid var(--color-border)',
+                    backgroundColor: 'var(--color-bg-card)',
+                    color: 'var(--color-primary)',
+                    fontWeight: 600,
+                    margin: '12px 0 24px',
+                    cursor: 'pointer',
+                    fontSize: '13px'
+                  }}
+                >
+                  {loadingMore ? 'Loading more posts...' : 'Show More Posts'}
+                </button>
+              )}
+            </>
+          ) : (
+            <div className="card" style={{ padding: '40px 20px', textAlign: 'center', backgroundColor: 'var(--color-bg-card)', border: '1px solid var(--color-border)', color: 'var(--color-text-secondary)' }}>
+              <span style={{ fontSize: '48px', display: 'block', marginBottom: '16px' }}>🤫</span>
+              <h3 className="text-h3" style={{ color: 'var(--color-text-primary)', marginBottom: '8px' }}>No posts found</h3>
+              <p style={{ fontSize: '13px' }}>
+                {selectedCategory !== 'ALL' 
+                  ? `Be the first to speak out in ${CATEGORIES.find(c => c.value === selectedCategory)?.label}.` 
+                  : 'Be the first person to speak out. Post anonymously above!'}
+              </p>
+            </div>
+          )}
         </div>
       </div>
       
       <RightSidebar />
       
-      {isModalOpen && <CreatePostModal onClose={() => setIsModalOpen(false)} />}
+      {isModalOpen && (
+        <CreatePostModal 
+          onClose={() => setIsModalOpen(false)} 
+          onPostCreated={handlePostCreated} 
+        />
+      )}
     </div>
   );
 };

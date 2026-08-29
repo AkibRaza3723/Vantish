@@ -82,6 +82,7 @@ export async function completeProfile(req: Request, res: Response) {
             user: updatedUser,
         });
     } catch (error) {
+        console.error("completeProfile error:", error);
         return res.status(500).json({ error: "Internal server error" });
     }
 }
@@ -92,6 +93,8 @@ export async function completeProfile(req: Request, res: Response) {
 // ─────────────────────────────────────────────────────────────────
 export async function getMyProfile(req: Request, res: Response) {
     const userId = req.session.user.id;
+    console.log("getMyProfile queried userId:", userId);
+    console.log("Session user object:", req.session.user);
 
     try {
         const user = await prisma.user.findUnique({
@@ -121,6 +124,7 @@ export async function getMyProfile(req: Request, res: Response) {
 
         return res.status(200).json({ user });
     } catch (error) {
+        console.error("getMyProfile error:", error);
         return res.status(500).json({ error: "Internal server error" });
     }
 }

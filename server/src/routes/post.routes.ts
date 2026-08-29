@@ -15,14 +15,14 @@ import voteRouter from "./votes.routes.js";
 const postRouter = Router();
 
 // Public routes (no login required)
-postRouter.get("/feed", getFeed);
-postRouter.get("/user/:userId", getPostsByUser);
-postRouter.get("/:postId", getPostById);
+postRouter.get("/feed", requireAuth, getFeed);
+postRouter.get("/user/:userId", requireAuth, getPostsByUser);
+postRouter.get("/:postId", requireAuth, getPostById);
 
 // Protected routes (login required)
-postRouter.post("/", upload.single("image"), createPost);
-postRouter.put("/:postId", updatePost);
-postRouter.delete("/:postId", deletePost);
+postRouter.post("/", requireAuth, upload.single("image"), createPost);
+postRouter.put("/:postId", requireAuth, updatePost);
+postRouter.delete("/:postId", requireAuth, deletePost);
 postRouter.post("/:postId/report", requireAuth, reportPost);
 
 // ── Nested: /api/v1/post/:postId/vote  &  /api/v1/post/:postId/votes ──

@@ -1,74 +1,505 @@
-import React, { useState } from 'react';
-import { ThumbsUp, MessageSquare, Repeat2, Send } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { ThumbsUp, ThumbsDown, MessageSquare, AlertTriangle, Trash2, Send, X } from 'lucide-react';
+import { votesApi } from '../api/votes';
+import { commentsApi } from '../api/comments';
+import { postsApi } from '../api/posts';
+import { useAuth } from './AuthContext';
 import './PostCard.css';
 
-const PostCard = ({ post }) => {
-  const [liked, setLiked] = useState(false);
-  const [showReactions, setShowReactions] = useState(false);
+const formatRelativeTime = (dateStr) => {
+  if (!dateStr) return '';
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const minutes = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
+
+  if (minutes < 1) return 'Just now';
+  if (minutes < 60) return `${minutes}m`;
+  if (hours < 24) return `${hours}h`;
+  return `${days}d`;
+};
+
+const PostCard = ({ post, onPostRemoved }) => {
+  const { user: currentUser } = useAuth();
+  
+  // Voting States
+  const [votedState, setVotedState] = useState(null); // 'RELATED', 'NOT_RELATED', or null
+  const [relatedCount, setRelatedCount] = useState(post.related || 0);
+  const [notRelatedCount, setNotRelatedCount] = useState(post.notRelated || 0);
+  
+  // Comments States
+  const [showComments, setShowComments] = useState(false);
+  const [comments, setComments] = useState([]);
+  const [commentsLoading, setCommentsLoading] = useState(false);
+  const [newCommentText, setNewCommentText] = useState('');
+  
+  // Modals and Reporting
+  const [showReportPostModal, setShowReportPostModal] = useState(false);
+  const [showReportCommentModal, setShowReportCommentModal] = useState(false);
+  const [reportingCommentId, setReportingCommentId] = useState(null);
+  const [reportReason, setReportReason] = useState('');
+  const [reportError, setReportError] = useState('');
+  const [reportedPosts, setReportedPosts] = useState({}); // Keep track of reported items locally
+
+  // Fetch current user's vote on mount
+  useEffect(() => {
+    const fetchUserVote = async () => {
+      try {
+        const response = await votesApi.getMyVoteOnPost(post.id);
+        if (response && response.voted) {
+          setVotedState(response.voteType);
+        }
+      } catch (err) {
+        console.error('Failed to fetch user vote:', err);
+      }
+    };
+    fetchUserVote();
+  }, [post.id]);
+
+  // Load comments when expanded
+  useEffect(() => {
+    if (showComments) {
+      loadComments();
+    }
+  }, [showComments, post.id]);
+
+  const loadComments = async () => {
+    setCommentsLoading(true);
+    try {
+      const response = await commentsApi.getComments(post.id);
+      setComments(response.comments || []);
+    } catch (err) {
+      console.error('Failed to load comments:', err);
+    } finally {
+      setCommentsLoading(false);
+    }
+  };
+
+  // Voting handler with optimistic updates
+  const handleVote = async (type) => {
+    const previousVotedState = votedState;
+    const previousRelated = relatedCount;
+    const previousNotRelated = notRelatedCount;
+
+    // Optimistic calculation
+    if (votedState === type) {
+      // Toggle off the same vote
+      setVotedState(null);
+      if (type === 'RELATED') setRelatedCount(prev => Math.max(0, prev - 1));
+      if (type === 'NOT_RELATED') setNotRelatedCount(prev => Math.max(0, prev - 1));
+    } else {
+      // Toggle on, or change vote
+      setVotedState(type);
+      if (type === 'RELATED') {
+        setRelatedCount(prev => prev + 1);
+        if (previousVotedState === 'NOT_RELATED') setNotRelatedCount(prev => Math.max(0, prev - 1));
+      } else {
+        setNotRelatedCount(prev => prev + 1);
+        if (previousVotedState === 'RELATED') setRelatedCount(prev => Math.max(0, prev - 1));
+      }
+    }
+
+    try {
+      await votesApi.castOrToggleVote(post.id, type);
+    } catch (err) {
+      // Revert state on failure
+      setVotedState(previousVotedState);
+      setRelatedCount(previousRelated);
+      setNotRelatedCount(previousNotRelated);
+      alert('Failed to cast vote: ' + err.message);
+    }
+  };
+
+  // Add Comment
+  const handleAddComment = async (e) => {
+    e.preventDefault();
+    if (!newCommentText.trim()) return;
+
+    const tempText = newCommentText;
+    setNewCommentText('');
+
+    try {
+      const response = await commentsApi.createComment(post.id, tempText);
+      if (response && response.comment) {
+        // Prepend new comment
+        setComments(prev => [response.comment, ...prev]);
+        post.comments = (post.comments || 0) + 1; // update parent cache count locally if needed
+      }
+    } catch (err) {
+      setNewCommentText(tempText);
+      alert('Failed to post comment: ' + err.message);
+    }
+  };
+
+  // Delete Comment
+  const handleDeleteComment = async (commentId) => {
+    if (!window.confirm('Are you sure you want to delete this comment?')) return;
+
+    try {
+      await commentsApi.deleteComment(commentId);
+      setComments(prev => prev.filter(c => c.id !== commentId));
+    } catch (err) {
+      alert('Failed to delete comment: ' + err.message);
+    }
+  };
+
+  // Report Post
+  const handleReportPost = async () => {
+    if (!reportReason.trim()) {
+      setReportError('Please select or specify a reason');
+      return;
+    }
+    setReportError('');
+
+    try {
+      const response = await postsApi.reportPost(post.id, reportReason);
+      setShowReportPostModal(false);
+      setReportReason('');
+      setReportedPosts(prev => ({ ...prev, [post.id]: true }));
+      
+      if (response && response.autoDeleted) {
+        alert('This post has been removed as it reached the report threshold.');
+        if (onPostRemoved) onPostRemoved(post.id);
+      } else {
+        alert('Thank you. Your report has been submitted for moderation.');
+      }
+    } catch (err) {
+      setReportError(err.message);
+    }
+  };
+
+  // Report Comment
+  const handleReportComment = async () => {
+    if (!reportReason.trim()) {
+      setReportError('Please select or specify a reason');
+      return;
+    }
+    setReportError('');
+
+    try {
+      await commentsApi.reportComment(reportingCommentId, reportReason);
+      setShowReportCommentModal(false);
+      // Remove reported comment immediately since backend hides it on first report
+      setComments(prev => prev.filter(c => c.id !== reportingCommentId));
+      setReportReason('');
+      setReportingCommentId(null);
+      alert('Comment reported and hidden.');
+    } catch (err) {
+      setReportError(err.message);
+    }
+  };
+
+  // Delete own post
+  const handleDeletePost = async () => {
+    if (!window.confirm('Are you sure you want to delete this post?')) return;
+    try {
+      await postsApi.deletePost(post.id);
+      if (onPostRemoved) onPostRemoved(post.id);
+    } catch (err) {
+      alert('Failed to delete post: ' + err.message);
+    }
+  };
+
+  const isAuthor = currentUser?.id === post.authorId;
+
+  // Render Category Name cleanly
+  const renderCategoryName = (cat) => {
+    if (!cat) return '';
+    return cat.replace(/_/g, ' ');
+  };
 
   return (
     <div className="card post-card">
+      {/* Post Header */}
       <div className="post-header">
-        <div className="avatar" style={{ width: 48, height: 48 }}>
-          <span style={{ fontSize: 24 }}>{post.avatarEmoji || '👤'}</span>
+        <Link to={`/profile/${post.authorId}`} className="avatar" style={{ width: 44, height: 44, flexShrink: 0 }}>
+          {post.author?.image ? (
+            <img src={post.author.image} alt={post.author?.name} className="avatar-img" />
+          ) : (
+            <span style={{ fontSize: 22 }}>👻</span>
+          )}
+        </Link>
+        
+        <div className="post-meta" style={{ flexGrow: 1 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Link to={`/profile/${post.authorId}`} className="text-h3" style={{ margin: 0, textDecoration: 'none', color: 'var(--color-text-primary)' }}>
+              {post.author?.name || 'Anonymous User'}
+            </Link>
+            <span className="text-secondary" style={{ fontSize: '11px' }}>
+              • {formatRelativeTime(post.createdAt)}
+            </span>
+          </div>
+          
+          <div className="post-badges-row">
+            <span className="category-badge">{renderCategoryName(post.category)}</span>
+            <span className="stress-badge">Stress: {'🔥'.repeat(post.stressRating || 1)}</span>
+          </div>
         </div>
-        <div className="post-meta">
-          <h3 className="text-h3" style={{ margin: 0 }}>{post.author}</h3>
-          <span className="text-secondary">{post.role}</span>
-          <span className="text-secondary">{post.time} • 🌐</span>
-        </div>
+
+        {isAuthor && (
+          <button onClick={handleDeletePost} className="comment-btn-action delete" title="Delete Post" style={{ padding: '8px' }}>
+            <Trash2 size={16} />
+          </button>
+        )}
       </div>
-      
+
+      {/* Post Content */}
       <div className="post-body text-body">
         {post.content}
       </div>
 
+      {/* Image if exists */}
+      {post.imageUrl && (
+        <div className="post-image-container">
+          <img src={post.imageUrl} alt="Uploaded attachment" className="post-image" />
+        </div>
+      )}
+
+      {/* Post Statistics */}
       <div className="post-stats">
-        <span className="text-secondary">
-          <ThumbsUp size={12} style={{ marginRight: 4, color: 'var(--color-primary)' }} />
-          {post.likes + (liked ? 1 : 0)}
+        <span className="text-secondary" style={{ display: 'flex', gap: '12px' }}>
+          <span>👍 {relatedCount} Related</span>
+          <span>👎 {notRelatedCount} Not Related</span>
         </span>
-        <span className="text-secondary">{post.comments} comments • {post.shares} reposts</span>
+        <span className="text-secondary" style={{ cursor: 'pointer' }} onClick={() => setShowComments(!showComments)}>
+          {post._count?.comments || comments.length} comments
+        </span>
       </div>
 
+      {/* Post Actions */}
       <div className="post-actions">
-        <div 
-          className="action-button-container"
-          onMouseEnter={() => setShowReactions(true)}
-          onMouseLeave={() => setShowReactions(false)}
+        <button 
+          className={`btn-action ${votedState === 'RELATED' ? 'voted-related' : ''}`}
+          onClick={() => handleVote('RELATED')}
         >
-          {showReactions && (
-            <div className="reactions-popover">
-              <span className="reaction-emoji" onClick={() => setLiked(true)}>👍</span>
-              <span className="reaction-emoji" onClick={() => setLiked(true)}>👏</span>
-              <span className="reaction-emoji" onClick={() => setLiked(true)}>😂</span>
-              <span className="reaction-emoji" onClick={() => setLiked(true)}>🤯</span>
-            </div>
-          )}
-          <button 
-            className={`btn-action ${liked ? 'liked' : ''}`}
-            onClick={() => setLiked(!liked)}
-          >
-            <ThumbsUp size={24} />
-            <span>Like</span>
-          </button>
-        </div>
+          <ThumbsUp size={18} />
+          <span>Related</span>
+        </button>
+
+        <button 
+          className={`btn-action ${votedState === 'NOT_RELATED' ? 'voted-not-related' : ''}`}
+          onClick={() => handleVote('NOT_RELATED')}
+        >
+          <ThumbsDown size={18} />
+          <span>Not Related</span>
+        </button>
         
-        <button className="btn-action">
-          <MessageSquare size={24} />
+        <button className="btn-action" onClick={() => setShowComments(!showComments)}>
+          <MessageSquare size={18} />
           <span>Comment</span>
         </button>
-        
-        <button className="btn-action">
-          <Repeat2 size={24} />
-          <span>Repost</span>
-        </button>
-        
-        <button className="btn-action">
-          <Send size={24} />
-          <span>Send</span>
-        </button>
+
+        {!isAuthor && (
+          <button 
+            className="btn-action" 
+            onClick={() => {
+              setReportReason('');
+              setReportError('');
+              setShowReportPostModal(true);
+            }}
+            disabled={reportedPosts[post.id]}
+          >
+            <AlertTriangle size={18} />
+            <span>{reportedPosts[post.id] ? 'Reported' : 'Report'}</span>
+          </button>
+        )}
       </div>
+
+      {/* Comments Panel */}
+      {showComments && (
+        <div className="comments-section">
+          {/* Add Comment Input */}
+          <form onSubmit={handleAddComment} className="comment-composer">
+            <div className="avatar" style={{ width: 32, height: 32, flexShrink: 0 }}>
+              {currentUser?.image ? (
+                <img src={currentUser.image} alt={currentUser?.name} className="avatar-img" />
+              ) : (
+                <span style={{ fontSize: 16 }}>👻</span>
+              )}
+            </div>
+            
+            <div className="comment-input-container">
+              <input
+                type="text"
+                className="comment-input"
+                placeholder="Say what you can't say on LinkedIn..."
+                value={newCommentText}
+                onChange={(e) => setNewCommentText(e.target.value)}
+              />
+              <button type="submit" className="comment-submit-btn">
+                <Send size={16} />
+              </button>
+            </div>
+          </form>
+
+          {/* Comments List */}
+          {commentsLoading ? (
+            <div style={{ textAlign: 'center', padding: '12px', fontSize: '13px', color: 'var(--color-text-secondary)' }}>
+              Loading comments...
+            </div>
+          ) : comments.length > 0 ? (
+            <div className="comments-list">
+              {comments.map((comment) => (
+                <div key={comment.id} className="comment-item">
+                  <Link to={`/profile/${comment.authorId}`} className="avatar" style={{ width: 32, height: 32, flexShrink: 0 }}>
+                    {comment.author?.image ? (
+                      <img src={comment.author.image} alt={comment.author?.name} className="avatar-img" />
+                    ) : (
+                      <span style={{ fontSize: 16 }}>👻</span>
+                    )}
+                  </Link>
+
+                  <div className="comment-bubble">
+                    <div className="comment-header">
+                      <Link to={`/profile/${comment.authorId}`} className="comment-author-name" style={{ textDecoration: 'none' }}>
+                        {comment.author?.name || 'Anonymous User'}
+                      </Link>
+                      <span className="comment-time">{formatRelativeTime(comment.createdAt)}</span>
+                    </div>
+                    <div className="comment-body">
+                      {comment.content}
+                    </div>
+
+                    <div className="comment-actions">
+                      {currentUser?.id === comment.authorId ? (
+                        <button 
+                          onClick={() => handleDeleteComment(comment.id)} 
+                          className="comment-btn-action delete"
+                        >
+                          Delete
+                        </button>
+                      ) : (
+                        <button 
+                          onClick={() => {
+                            setReportingCommentId(comment.id);
+                            setReportReason('');
+                            setReportError('');
+                            setShowReportCommentModal(true);
+                          }} 
+                          className="comment-btn-action"
+                        >
+                          Report
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div style={{ textAlign: 'center', padding: '12px', fontSize: '12px', color: 'var(--color-text-secondary)' }}>
+              No comments yet. Be the first to speak out.
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Report Post Modal */}
+      {showReportPostModal && (
+        <div className="vantish-modal-backdrop">
+          <div className="vantish-modal card">
+            <span className="modal-close-btn" onClick={() => setShowReportPostModal(false)}>
+              <X size={18} />
+            </span>
+            <h2>Report Post</h2>
+            <p className="text-secondary" style={{ marginBottom: '16px' }}>
+              Why are you reporting this post? Posts with 5 or more flags are automatically deleted.
+            </p>
+
+            {reportError && <div className="onboarding-error-alert">{reportError}</div>}
+
+            <div className="report-reasons-list">
+              {[
+                { key: 'harassment', label: 'Harassment or Bullying' },
+                { key: 'doxxing', label: 'Sharing Private Personal Info (Doxxing)' },
+                { key: 'threats', label: 'Violence or Direct Threats' },
+                { key: 'false_accused', label: 'Malicious False Accusations' },
+                { key: 'spam', label: 'Spam or Misleading Content' },
+                { key: 'other', label: 'Other Guidelines Violation' },
+              ].map((reason) => (
+                <div 
+                  key={reason.key} 
+                  className={`report-reason-option ${reportReason === reason.label ? 'selected' : ''}`}
+                  onClick={() => setReportReason(reason.label)}
+                >
+                  <input
+                    type="radio"
+                    name="report-post-reason"
+                    checked={reportReason === reason.label}
+                    readOnly
+                  />
+                  <label>{reason.label}</label>
+                </div>
+              ))}
+            </div>
+
+            <div className="modal-actions">
+              <button className="btn-secondary" onClick={() => setShowReportPostModal(false)}>
+                Cancel
+              </button>
+              <button className="btn-primary" onClick={handleReportPost} disabled={!reportReason}>
+                Submit Report
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Report Comment Modal */}
+      {showReportCommentModal && (
+        <div className="vantish-modal-backdrop">
+          <div className="vantish-modal card">
+            <span className="modal-close-btn" onClick={() => {
+              setShowReportCommentModal(false);
+              setReportingCommentId(null);
+            }}>
+              <X size={18} />
+            </span>
+            <h2>Report Comment</h2>
+            <p className="text-secondary" style={{ marginBottom: '16px' }}>
+              Why are you reporting this comment? Reported comments are hidden immediately for safety.
+            </p>
+
+            {reportError && <div className="onboarding-error-alert">{reportError}</div>}
+
+            <div className="report-reasons-list">
+              {[
+                { key: 'harassment', label: 'Harassment or Bullying' },
+                { key: 'doxxing', label: 'Sharing Private Personal Info' },
+                { key: 'abuse', label: 'Hate speech or abuse' },
+                { key: 'spam', label: 'Spam' },
+              ].map((reason) => (
+                <div 
+                  key={reason.key} 
+                  className={`report-reason-option ${reportReason === reason.label ? 'selected' : ''}`}
+                  onClick={() => setReportReason(reason.label)}
+                >
+                  <input
+                    type="radio"
+                    name="report-comment-reason"
+                    checked={reportReason === reason.label}
+                    readOnly
+                  />
+                  <label>{reason.label}</label>
+                </div>
+              ))}
+            </div>
+
+            <div className="modal-actions">
+              <button className="btn-secondary" onClick={() => {
+                setShowReportCommentModal(false);
+                setReportingCommentId(null);
+              }}>
+                Cancel
+              </button>
+              <button className="btn-primary" onClick={handleReportComment} disabled={!reportReason}>
+                Submit Report
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

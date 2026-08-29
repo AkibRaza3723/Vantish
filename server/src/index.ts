@@ -5,6 +5,7 @@ import express, { type Express, type Request, type Response } from 'express';
 import cors from 'cors';
 import { toNodeHandler } from 'better-auth/node';
 import { auth } from './lib/auth.js';
+import { routes } from './routes/index.js';
 
 const app: Express = express();
 const PORT = process.env.PORT || 3000;
@@ -16,10 +17,14 @@ const corsOptions = {
     allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
 };
 
+
 app.use(cors(corsOptions));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+routes(app);
+
 
 app.all('/api/auth/*splat', toNodeHandler(auth));
 

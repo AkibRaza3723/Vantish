@@ -38,11 +38,11 @@ const Signup = () => {
   };
 
   const handleGoogleSignUp = async () => {
-    await signIn.social({ provider: 'google', callbackURL: '/feed' });
+    await signIn.social({ provider: 'google', callbackURL: window.location.origin + '/feed' });
   };
 
   const handleGithubSignUp = async () => {
-    await signIn.social({ provider: 'github', callbackURL: '/feed' });
+    await signIn.social({ provider: 'github', callbackURL: window.location.origin + '/feed' });
   };
 
   return (

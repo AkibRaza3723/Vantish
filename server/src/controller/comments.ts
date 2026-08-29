@@ -82,7 +82,7 @@ export async function getComments(req: Request, res: Response) {
 }
 
 export async function deleteComment(req: Request, res: Response) {
-    const commentId = String(req.params.commentId);  // cast: req.params is string | string[] | undefined
+    const commentId = String(req.params.comentId);  // cast: req.params is string | string[] | undefined
     const userId = req.session.user.id;
 
     const existing = await prisma.comments.findUnique({ where: { id: commentId } });
