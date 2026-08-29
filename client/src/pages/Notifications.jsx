@@ -31,12 +31,6 @@ const Notifications = () => {
             >
               My posts
             </button>
-            <button 
-              className={`filter-btn ${filter === 'mentions' ? 'active' : ''}`}
-              onClick={() => setFilter('mentions')}
-            >
-              Mentions
-            </button>
           </div>
         </div>
       </div>

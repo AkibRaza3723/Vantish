@@ -97,9 +97,15 @@ const Navbar = ({ onPostClick }) => {
         <div className="navbar-content">
           <div className="navbar-left">
             <Link to="/feed" className="navbar-logo" style={{ textDecoration: 'none' }}>
-              <div style={{ fontSize: '20px', fontWeight: 'bold', color: 'var(--color-primary)' }}>
-                V<span>antish</span>
-              </div>
+              <img src="/logo.png" alt="Vantish" style={{ height: 30, width: 'auto', objectFit: 'contain' }} />
+              <span className="navbar-logo-text" style={{
+                fontFamily: "'Source Sans 3', 'Helvetica Neue', Helvetica, Arial, sans-serif",
+                fontSize: '20px',
+                fontWeight: 900,
+                color: 'var(--color-primary)',
+                letterSpacing: '-0.4px',
+                lineHeight: 1,
+              }}>Vantish</span>
             </Link>
             
             <div className="search-wrapper" ref={searchRef}>
@@ -165,9 +171,9 @@ const Navbar = ({ onPostClick }) => {
             <button className="theme-toggle-btn" onClick={toggleTheme} title="Toggle Theme">
               {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
             </button>
-            <button className="logout-nav-btn" onClick={logout}>
-              <LogOut size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
-              Log Out
+            <button className="logout-nav-btn" onClick={logout} title="Log Out">
+              <LogOut size={15} style={{ verticalAlign: 'middle' }} />
+              <span className="logout-text" style={{ marginLeft: '4px' }}>Log Out</span>
             </button>
           </div>
         </div>

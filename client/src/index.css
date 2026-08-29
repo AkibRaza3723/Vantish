@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700;800;900&display=swap');
+
 :root, .theme-light {
   --color-primary: #0A66C2;
   --color-primary-hover: #004182;
@@ -13,7 +15,7 @@
   --color-accent-amber: #E7A33E;
   --color-accent-coral: #F5987E;
 
-  --font-family-primary: -apple-system, "SF Pro", system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-family-primary: 'Source Sans 3', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   
   --shadow-card: 0 0 0 1px rgba(0,0,0,.08), 0 2px 4px rgba(0,0,0,.08);
   --shadow-dropdown: 0 4px 12px rgba(0,0,0,.15);
@@ -145,8 +147,14 @@ button {
 }
 
 @media (max-width: 1024px) {
+  .app-container {
+    padding-top: 76px;
+  }
   .grid-layout {
-    grid-template-columns: 225px minmax(0, 552px);
+    grid-template-columns: 220px minmax(0, 1fr);
+    padding: 0 16px;
+    gap: 16px;
+    max-width: 920px;
     justify-content: center;
   }
   .right-sidebar {
@@ -156,14 +164,17 @@ button {
 
 @media (max-width: 768px) {
   .app-container {
-    padding-bottom: 84px;
+    padding-top: 68px;
+    padding-bottom: 80px;
   }
   .grid-layout {
     grid-template-columns: 1fr;
-    padding: 0;
-    gap: 16px;
+    padding: 0 10px;
+    gap: 10px;
+    width: 100%;
   }
-  .left-sidebar {
+  .left-sidebar,
+  .right-sidebar {
     display: none;
   }
 }

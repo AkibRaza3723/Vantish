@@ -1,46 +1,42 @@
 import React from 'react';
-import { Info } from 'lucide-react';
+import { Bell, MoreHorizontal } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import './Sidebar.css';
+
+const TOP_NOTIFICATIONS = [
+  { id: 1, text: 'Anonymous 🦊 reacted to your post: "Just had my 1-on-1..."', time: '1h', read: false, emoji: '👍', avatarEmoji: '🦊' },
+  { id: 2, text: 'Secret Founder 🦄 and 3 others commented on a post you shared.', time: '3h', read: false, emoji: '💬', avatarEmoji: '🦄' },
+  { id: 3, text: 'Trending: "CEO caught using ChatGPT" is popular today.', time: '5h', read: true, emoji: '🔥', avatarEmoji: '📰' },
+];
 
 const RightSidebar = () => {
   return (
     <div className="right-sidebar">
       <div className="card news-card">
         <div className="news-header">
-          <h2 className="text-h3">Linkout News</h2>
-          <Info size={16} color="var(--color-text-secondary)" />
+          <h2 className="text-h3" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <Bell size={15} /> Notifications
+          </h2>
+          <Link to="/notifications" style={{ fontSize: 12, color: 'var(--color-primary)', fontWeight: 600, textDecoration: 'none' }}>
+            See all
+          </Link>
         </div>
-        
-        <ul className="news-list">
-          <li className="news-item">
-            <div className="news-bullet"></div>
-            <div className="news-content">
-              <h3 className="text-body font-semibold" style={{ margin: 0, fontSize: 14 }}>CEO caught using ChatGPT</h3>
-              <span className="text-secondary">Top news • 10,934 readers</span>
+
+        <div className="sidebar-notif-list">
+          {TOP_NOTIFICATIONS.map(notif => (
+            <div key={notif.id} className={`sidebar-notif-item ${!notif.read ? 'unread' : ''}`}>
+              {!notif.read && <div className="unread-dot" />}
+              <div className="sidebar-notif-avatar">
+                <span style={{ fontSize: 22 }}>{notif.avatarEmoji}</span>
+                <div className="notification-badge-emoji">{notif.emoji}</div>
+              </div>
+              <div className="sidebar-notif-content">
+                <p className="sidebar-notif-text">{notif.text}</p>
+                <span className="sidebar-notif-time">{notif.time}</span>
+              </div>
             </div>
-          </li>
-          <li className="news-item">
-            <div className="news-bullet"></div>
-            <div className="news-content">
-              <h3 className="text-body font-semibold" style={{ margin: 0, fontSize: 14 }}>Another layoff at Big Tech</h3>
-              <span className="text-secondary">1d ago • 5,432 readers</span>
-            </div>
-          </li>
-          <li className="news-item">
-            <div className="news-bullet"></div>
-            <div className="news-content">
-              <h3 className="text-body font-semibold" style={{ margin: 0, fontSize: 14 }}>Return to office mandated</h3>
-              <span className="text-secondary">2d ago • 8,912 readers</span>
-            </div>
-          </li>
-          <li className="news-item">
-            <div className="news-bullet"></div>
-            <div className="news-content">
-              <h3 className="text-body font-semibold" style={{ margin: 0, fontSize: 14 }}>Free coffee removed from pantry</h3>
-              <span className="text-secondary">3d ago • 23,101 readers</span>
-            </div>
-          </li>
-        </ul>
+          ))}
+        </div>
       </div>
     </div>
   );

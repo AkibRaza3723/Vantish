@@ -357,7 +357,7 @@ const Onboarding = () => {
                 <li>❌ <strong>No Threats or Accusations:</strong> Do not post illegal threats or malicious false accusations.</li>
                 <li>❌ <strong>No Doxxing:</strong> Never share private phone numbers, home addresses, or personal email addresses.</li>
                 <li>❌ <strong>No Abuse of Flags:</strong> Do not abuse the reporting system to hide posts you disagree with.</li>
-                <li>💡 <strong>Say what you can't say on LinkedIn:</strong> Focus on sharing workplace frustrations, burnout logs, culture critiques, and compensation logs, without losing professional integrity.</li>
+                <li>💡 <strong>Share what you can't say publicly:</strong> Focus on sharing workplace frustrations, burnout logs, culture critiques, and compensation truths — without losing professional integrity.</li>
               </ul>
             </div>
 

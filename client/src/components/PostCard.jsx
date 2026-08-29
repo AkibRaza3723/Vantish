@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
 import { ThumbsUp, ThumbsDown, MessageSquare, AlertTriangle, Trash2, Send, X } from 'lucide-react';
 import { votesApi } from '../api/votes';
@@ -224,7 +225,7 @@ const PostCard = ({ post, onPostRemoved }) => {
         <div className="post-meta" style={{ flexGrow: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Link to={`/profile/${post.authorId}`} className="text-h3" style={{ margin: 0, textDecoration: 'none', color: 'var(--color-text-primary)' }}>
-              {post.author?.name || 'Anonymous User'}
+              {post.author?.username ? `@${post.author.username}` : post.author?.name || 'Anonymous'}
             </Link>
             <span className="text-secondary" style={{ fontSize: '11px' }}>
               • {formatRelativeTime(post.createdAt)}
@@ -323,7 +324,7 @@ const PostCard = ({ post, onPostRemoved }) => {
               <input
                 type="text"
                 className="comment-input"
-                placeholder="Say what you can't say on LinkedIn..."
+                placeholder="Say what you can't say publicly..."
                 value={newCommentText}
                 onChange={(e) => setNewCommentText(e.target.value)}
               />
@@ -353,7 +354,7 @@ const PostCard = ({ post, onPostRemoved }) => {
                   <div className="comment-bubble">
                     <div className="comment-header">
                       <Link to={`/profile/${comment.authorId}`} className="comment-author-name" style={{ textDecoration: 'none' }}>
-                        {comment.author?.name || 'Anonymous User'}
+                        {comment.author?.username ? `@${comment.author.username}` : comment.author?.name || 'Anonymous'}
                       </Link>
                       <span className="comment-time">{formatRelativeTime(comment.createdAt)}</span>
                     </div>
@@ -395,8 +396,7 @@ const PostCard = ({ post, onPostRemoved }) => {
         </div>
       )}
 
-      {/* Report Post Modal */}
-      {showReportPostModal && (
+      {showReportPostModal && createPortal(
         <div className="vantish-modal-backdrop">
           <div className="vantish-modal card">
             <span className="modal-close-btn" onClick={() => setShowReportPostModal(false)}>
@@ -443,11 +443,11 @@ const PostCard = ({ post, onPostRemoved }) => {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
-      {/* Report Comment Modal */}
-      {showReportCommentModal && (
+      {showReportCommentModal && createPortal(
         <div className="vantish-modal-backdrop">
           <div className="vantish-modal card">
             <span className="modal-close-btn" onClick={() => {
@@ -498,7 +498,8 @@ const PostCard = ({ post, onPostRemoved }) => {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

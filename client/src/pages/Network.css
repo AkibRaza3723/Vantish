@@ -2,11 +2,13 @@
   grid-column: span 2;
   display: flex;
   flex-direction: column;
+  width: 100%;
 }
 
 @media (max-width: 1024px) {
   .network-main-column {
-    grid-column: span 1;
+    grid-column: 1 / -1;
+    width: 100%;
   }
 }
 

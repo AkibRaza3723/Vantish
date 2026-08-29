@@ -48,13 +48,13 @@ const Signin = () => {
     <div className="signup-container">
       <header className="signup-header">
         <Link to="/" className="signup-logo">
-          Link<span>out</span>
+          <img src="/logo.png" alt="Vantish" style={{ height: '32px', objectFit: 'contain' }} />
         </Link>
       </header>
 
       <main className="signup-main">
-        <h1 className="signup-title">Sign in to Linkout</h1>
-        <p className="signup-subtitle">Stay updated on your professional world</p>
+        <h1 className="signup-title">Sign in to Vantish</h1>
+        <p className="signup-subtitle">The truth about work, finally.</p>
 
         <div className="signup-card">
           {error && (
@@ -135,7 +135,7 @@ const Signin = () => {
       </main>
 
       <footer className="signup-footer">
-        <div className="signup-footer-logo">Linkout <span>© 2026</span></div>
+        <div className="signup-footer-logo">Vantish <span>© 2026</span></div>
         <a href="#" className="signup-footer-item">About</a>
         <a href="#" className="signup-footer-item">Accessibility</a>
         <a href="#" className="signup-footer-item">User Agreement</a>

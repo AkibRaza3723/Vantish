@@ -23,12 +23,14 @@ const LeftSidebar = () => {
           
           <h2 className="text-h3" style={{ textAlign: 'center', marginBottom: 2 }}>
             <Link to="/profile" style={{ textDecoration: 'none', color: 'var(--color-text-primary)' }}>
-              {user.name || 'Anonymous User'}
+              {user.username ? `@${user.username}` : (user.name || 'User')}
             </Link>
           </h2>
-          <p className="text-secondary" style={{ textAlign: 'center', marginBottom: 10, fontSize: '12px' }}>
-            @{user.username}
-          </p>
+          {user.name && user.name !== user.username && user.name !== 'Anonymous User' && (
+            <p className="text-secondary" style={{ textAlign: 'center', marginBottom: 10, fontSize: '12px' }}>
+              {user.name}
+            </p>
+          )}
           
           <p className="text-secondary" style={{ textAlign: 'center', padding: '0 8px', fontSize: '12px', color: 'var(--color-text-primary)', fontWeight: 500 }}>
             {user.role === 'student' ? 'Student' : user.position || 'Professional'}

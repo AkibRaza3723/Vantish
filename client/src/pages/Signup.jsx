@@ -49,13 +49,13 @@ const Signup = () => {
     <div className="signup-container">
       <header className="signup-header">
         <Link to="/" className="signup-logo">
-          Link<span>out</span>
+          <img src="/logo.png" alt="Vantish" style={{ height: '32px', objectFit: 'contain' }} />
         </Link>
       </header>
 
       <main className="signup-main">
-        <h1 className="signup-title">Join Linkout — it's free!</h1>
-        <p className="signup-subtitle">25+ people you may know are here</p>
+        <h1 className="signup-title">Join Vantish — it's free!</h1>
+        <p className="signup-subtitle">Speak the truth. Anonymously.</p>
 
         <div className="signup-card">
           {error && (
@@ -115,7 +115,7 @@ const Signup = () => {
             </div>
 
             <p className="signup-terms">
-              By clicking Agree & Join you agree to the Linkout{' '}
+              By clicking Agree & Join you agree to the Vantish{' '}
               <a href="#">User Agreement</a>, <a href="#">Privacy Policy</a>, and{' '}
               <a href="#">Cookie Policy</a>.
             </p>
@@ -160,7 +160,7 @@ const Signup = () => {
       </main>
 
       <footer className="signup-footer">
-        <div className="signup-footer-logo">Linkout <span>© 2026</span></div>
+        <div className="signup-footer-logo">Vantish <span>© 2026</span></div>
         <a href="#" className="signup-footer-item">About</a>
         <a href="#" className="signup-footer-item">Accessibility</a>
         <a href="#" className="signup-footer-item">User Agreement</a>

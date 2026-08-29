@@ -362,3 +362,49 @@
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* ── Mobile PostCard Tweaks ── */
+@media (max-width: 480px) {
+  .post-header {
+    padding: 12px;
+    gap: 10px;
+  }
+  
+  .post-body {
+    padding: 12px;
+    font-size: 13.5px;
+  }
+  
+  .post-stats {
+    padding: 8px 12px;
+    font-size: 11px;
+  }
+  
+  .post-actions {
+    padding: 2px;
+  }
+  
+  .btn-action {
+    padding: 8px 2px;
+    font-size: 11.5px;
+    gap: 4px;
+  }
+  
+  .btn-action svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  .comments-section {
+    padding: 12px 10px;
+  }
+
+  .comment-input-container {
+    padding: 2px 12px;
+  }
+  
+  .vantish-modal {
+    width: 95%;
+    padding: 18px 14px;
+  }
+}

@@ -289,10 +289,14 @@ const Profile = () => {
             <div className="profile-info-header">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
                 <div>
-                  <h1 className="text-h1" style={{ margin: 0 }}>{profileUser.name || 'Anonymous User'}</h1>
-                  <p className="text-secondary" style={{ fontSize: '14px', marginTop: '2px' }}>
-                    @{profileUser.username}
-                  </p>
+                  <h1 className="text-h1" style={{ margin: 0 }}>
+                    {profileUser.username ? `@${profileUser.username}` : (profileUser.name || 'User')}
+                  </h1>
+                  {profileUser.name && profileUser.name !== profileUser.username && profileUser.name !== 'Anonymous User' && (
+                    <p className="text-secondary" style={{ fontSize: '14px', marginTop: '2px' }}>
+                      {profileUser.name}
+                    </p>
+                  )}
                 </div>
                 
                 {/* Connection button actions */}

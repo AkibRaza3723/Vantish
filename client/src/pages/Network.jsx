@@ -100,10 +100,10 @@ const Network = () => {
 
                   <div className="request-user-info" style={{ flexGrow: 1 }}>
                     <Link to={`/profile/${request.sender?.id}`} className="request-user-name" style={{ textDecoration: 'none', color: 'var(--color-text-primary)', fontWeight: 600 }}>
-                      {request.sender?.name || 'Anonymous User'}
+                      {request.sender?.username ? `@${request.sender.username}` : (request.sender?.name || 'User')}
                     </Link>
                     <span className="request-user-meta" style={{ display: 'block', fontSize: '12px', color: 'var(--color-text-secondary)' }}>
-                      @{request.sender?.username} • at {request.sender?.organizations}
+                      {request.sender?.organizations ? `at ${request.sender.organizations}` : ''}
                     </span>
                   </div>
 
@@ -156,12 +156,8 @@ const Network = () => {
                     </Link>
                     
                     <Link to={`/profile/${conn.user?.id}`} className="connection-name" style={{ textDecoration: 'none', color: 'var(--color-text-primary)', fontWeight: 600 }}>
-                      {conn.user?.name || 'Anonymous User'}
+                      {conn.user?.username ? `@${conn.user.username}` : (conn.user?.name || 'User')}
                     </Link>
-                    
-                    <span className="connection-username" style={{ fontSize: '11.5px', color: 'var(--color-text-secondary)', display: 'block', margin: '2px 0 6px 0' }}>
-                      @{conn.user?.username}
-                    </span>
 
                     <span className="connection-role" style={{ fontSize: '12px', color: 'var(--color-text-secondary)', display: 'block', height: '36px', overflow: 'hidden', padding: '0 8px' }}>
                       at {conn.user?.organizations || 'Unspecified Org'}
