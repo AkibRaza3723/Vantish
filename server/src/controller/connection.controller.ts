@@ -46,7 +46,7 @@ export async function sendRequest(req: Request, res: Response) {
                 id: true,
                 status: true,
                 createdAt: true,
-                receiver: { select: { id: true, name: true, username: true, image: true } },
+                receiver: { select: { id: true, username: true, avatarUrl: true } },
             },
         });
 
@@ -104,7 +104,7 @@ export async function respondToRequest(req: Request, res: Response) {
                 id: true,
                 status: true,
                 updatedAt: true,
-                sender: { select: { id: true, name: true, username: true, image: true } },
+                sender: { select: { id: true, username: true, avatarUrl: true } },
             },
         });
 
@@ -166,8 +166,8 @@ export async function getMyConnections(req: Request, res: Response) {
                 id: true,
                 createdAt: true,
                 // Conditionally return the "other" user's info
-                sender: { select: { id: true, name: true, username: true, image: true, organizations: true } },
-                receiver: { select: { id: true, name: true, username: true, image: true, organizations: true } },
+                sender: { select: { id: true, username: true, avatarUrl: true, organizations: true } },
+                receiver: { select: { id: true, username: true, avatarUrl: true, organizations: true } },
             },
             orderBy: { createdAt: "desc" },
         });
@@ -205,7 +205,7 @@ export async function getPendingRequests(req: Request, res: Response) {
             select: {
                 id: true,
                 createdAt: true,
-                sender: { select: { id: true, name: true, username: true, image: true, organizations: true } },
+                sender: { select: { id: true, username: true, avatarUrl: true, organizations: true } },
             },
             orderBy: { createdAt: "desc" },
         });

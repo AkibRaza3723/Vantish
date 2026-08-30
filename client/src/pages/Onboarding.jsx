@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../components/AuthContext';
 import { usersApi } from '../api/users';
+import { getAvatarUrl } from '../lib/avatar';
 import './Onboarding.css';
 
 const Onboarding = () => {
@@ -99,6 +100,7 @@ const Onboarding = () => {
         organizations: formData.organizations,
         organization_type: formData.organization_type,
         course: formData.course,
+        avatarUrl: getAvatarUrl(formData.username),
       };
 
       if (formData.role === 'student') {

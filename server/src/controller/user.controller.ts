@@ -48,6 +48,7 @@ export async function completeProfile(req: Request, res: Response) {
             organizations: data.organizations,
             organization_type: data.organization_type,
             course: data.course,
+            avatarUrl: data.avatarUrl,
         };
 
         // Attach role-specific fields
@@ -74,6 +75,7 @@ export async function completeProfile(req: Request, res: Response) {
                 position: true,
                 Experience: true,
                 createdAt: true,
+                avatarUrl: true,
             },
         });
 
@@ -112,6 +114,7 @@ export async function getMyProfile(req: Request, res: Response) {
                 Experience: true,
                 createdAt: true,
                 updatedAt: true,
+                avatarUrl: true,
                 _count: {
                     select: { posts: true, comments: true },
                 },
@@ -151,6 +154,7 @@ export async function getUserById(req: Request, res: Response) {
                 position: true,
                 Experience: true,
                 createdAt: true,
+                avatarUrl: true,
                 _count: {
                     select: { posts: true },
                 },
@@ -231,6 +235,7 @@ export async function updateMyProfile(req: Request, res: Response) {
                 position: true,
                 Experience: true,
                 updatedAt: true,
+                avatarUrl: true,
             },
         });
 
@@ -295,14 +300,13 @@ export async function searchUsers(req: Request, res: Response) {
             },
             select: {
                 id: true,
-                name: true,
                 username: true,
-                image: true,
                 role: true,
                 organizations: true,
                 organization_type: true,
                 bio: true,
                 position: true,
+                avatarUrl: true,
             },
             take: 20, // cap results — add pagination later if needed
         });

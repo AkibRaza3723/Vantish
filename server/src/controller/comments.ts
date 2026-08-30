@@ -22,7 +22,7 @@ export async function createComment(req: Request, res: Response) {
             },
             include: {
                 author: {
-                    select: { id: true, name: true, image: true },
+                    select: { id: true, username: true, avatarUrl: true },
                 },
             },
         }); 
@@ -53,7 +53,7 @@ export async function updateComment(req: Request, res: Response) {
             data: { content },
             include: {
                 author: {
-                    select: { id: true, name: true, image: true },
+                    select: { id: true, username: true, avatarUrl: true },
                 },
             },
         });
@@ -71,7 +71,7 @@ export async function getComments(req: Request, res: Response) {
             orderBy: { createdAt: "desc" },
             include: {
                 author: {
-                    select: { id: true, name: true, image: true },
+                    select: { id: true, username: true, avatarUrl: true },
                 },
             },
         });

@@ -27,6 +27,10 @@ const baseUserSchema = z.object({
     course: z
         .string()
         .min(2, "Course/field must be at least 2 characters"),
+
+    avatarUrl: z
+        .string()
+        .optional(),
 });
 
 // ─────────────────────────────────────────────────────────────────

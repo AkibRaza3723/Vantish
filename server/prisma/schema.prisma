@@ -29,6 +29,7 @@ model User {
   position        String?
   bio             String?
   GraduationYear  Int?
+  avatarUrl       String? @default("")
   
   sessions      Session[]
   accounts      Account[]

@@ -42,7 +42,7 @@ export async function createPost(req: Request, res: Response) {
             },
             include: {
                 author: {
-                    select: { id: true, name: true, image: true },
+                    select: { id: true, username: true, avatarUrl: true },
                 },
             },
         });
@@ -71,7 +71,7 @@ export async function getFeed(req: Request, res: Response) {
                 orderBy: { createdAt: "desc" },
                 include: {
                     author: {
-                        select: { id: true, name: true, image: true },
+                        select: { id: true, username: true, avatarUrl: true },
                     },
                     _count: {
                         select: { comments: true, votes: true },
@@ -107,13 +107,13 @@ export async function getPostById(req: Request, res: Response) {
             where: { id: postId as string },
             include: {
                 author: {
-                    select: { id: true, name: true, image: true },
+                    select: { id: true, username: true, avatarUrl: true },
                 },
                 comments: {
                     orderBy: { createdAt: "desc" },
                     include: {
                         author: {
-                            select: { id: true, name: true, image: true },
+                            select: { id: true, username: true, avatarUrl: true },
                         },
                     },
                 },
@@ -152,7 +152,7 @@ export async function getPostsByUser(req: Request, res: Response) {
                 orderBy: { createdAt: "desc" },
                 include: {
                     author: {
-                        select: { id: true, name: true, image: true },
+                        select: { id: true, username: true, avatarUrl: true },
                     },
                     _count: {
                         select: { comments: true, votes: true },
@@ -163,7 +163,7 @@ export async function getPostsByUser(req: Request, res: Response) {
                             content: true,
                             createdAt: true,
                             author: {
-                                select: { id: true, name: true, image: true },
+                                select: { id: true, username: true, avatarUrl: true },
                             },
                         }
                     }
@@ -231,7 +231,7 @@ export async function updatePost(req: Request, res: Response) {
             data: data,
             include: {
                 author: {
-                    select: { id: true, name: true, image: true },
+                    select: { id: true, username: true, avatarUrl: true },
                 },
             },
         });

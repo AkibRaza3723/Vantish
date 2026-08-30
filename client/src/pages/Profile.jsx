@@ -8,6 +8,7 @@ import { postsApi } from '../api/posts';
 import { connectionsApi } from '../api/connections';
 import { useAuth } from '../components/AuthContext';
 import { Edit2, UserPlus, UserCheck, UserX, Clock, Check, X } from 'lucide-react';
+import { getAvatarUrl } from '../lib/avatar';
 import './Profile.css';
 
 const Profile = () => {
@@ -34,7 +35,6 @@ const Profile = () => {
   const [editLoading, setEditLoading] = useState(false);
   const [editError, setEditError] = useState('');
   const [editForm, setEditForm] = useState({
-    name: '',
     bio: '',
     organizations: '',
     organization_type: '',
@@ -62,7 +62,6 @@ const Profile = () => {
 
       // Pre-populate edit form
       setEditForm({
-        name: userData.name || '',
         bio: userData.bio || '',
         organizations: userData.organizations || '',
         organization_type: userData.organization_type || '',
@@ -204,7 +203,6 @@ const Profile = () => {
     try {
       const payload = {
         role: editForm.role,
-        name: editForm.name,
         bio: editForm.bio || undefined,
         organizations: editForm.organizations,
         organization_type: editForm.organization_type,
@@ -272,31 +270,16 @@ const Profile = () => {
           <div className="profile-header-content">
             <div className="profile-avatar-container">
               <div className="avatar profile-main-avatar" style={{ backgroundColor: 'var(--color-bg-card)', display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
-                {profileUser.image ? (
-                  <img src={profileUser.image} alt={profileUser.name} className="avatar-img" />
-                ) : (
-                  <span style={{ fontSize: 64 }}>👻</span>
-                )}
+                <img src={profileUser.avatarUrl || getAvatarUrl(profileUser.username)} alt={profileUser.username || 'anonymous'} className="avatar-img" />
               </div>
-              
-              {isOwnProfile && (
-                <button className="btn-ghost edit-avatar-btn" onClick={() => setIsEditModalOpen(true)}>
-                  <Edit2 size={16} />
-                </button>
-              )}
             </div>
             
             <div className="profile-info-header">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
                 <div>
                   <h1 className="text-h1" style={{ margin: 0 }}>
-                    {profileUser.username ? `@${profileUser.username}` : (profileUser.name || 'User')}
+                    {profileUser.username ? `@${profileUser.username}` : 'User'}
                   </h1>
-                  {profileUser.name && profileUser.name !== profileUser.username && profileUser.name !== 'Anonymous User' && (
-                    <p className="text-secondary" style={{ fontSize: '14px', marginTop: '2px' }}>
-                      {profileUser.name}
-                    </p>
-                  )}
                 </div>
                 
                 {/* Connection button actions */}
@@ -417,18 +400,7 @@ const Profile = () => {
             {editError && <div className="onboarding-error-alert">{editError}</div>}
             
             <form onSubmit={handleEditSubmit}>
-              <div className="form-group">
-                <label className="form-label" htmlFor="edit-name">Display Name</label>
-                <input
-                  type="text"
-                  id="edit-name"
-                  name="name"
-                  className="form-input"
-                  value={editForm.name}
-                  onChange={handleEditChange}
-                  required
-                />
-              </div>
+
 
               <div className="form-group">
                 <label className="form-label" htmlFor="edit-organizations">

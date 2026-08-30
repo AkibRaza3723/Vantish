@@ -121,7 +121,7 @@ export async function getVotesForPost(req: Request, res: Response) {
                 id: true,
                 voteType: true,
                 voter: {
-                    select: { id: true, name: true, image: true },
+                    select: { id: true, username: true, avatarUrl: true },
                 },
             },
         });

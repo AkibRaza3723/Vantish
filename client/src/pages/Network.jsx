@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import RightSidebar from '../components/RightSidebar';
 import { connectionsApi } from '../api/connections';
 import { Check, X, Users, AlertCircle } from 'lucide-react';
+import { getAvatarUrl } from '../lib/avatar';
 import './Network.css';
 
 const Network = () => {
@@ -91,16 +92,12 @@ const Network = () => {
               {pendingRequests.map((request) => (
                 <div key={request.id} className="pending-request-item">
                   <Link to={`/profile/${request.sender?.id}`} className="avatar" style={{ width: 48, height: 48, flexShrink: 0 }}>
-                    {request.sender?.image ? (
-                      <img src={request.sender.image} alt={request.sender.name} className="avatar-img" />
-                    ) : (
-                      <span style={{ fontSize: 24 }}>👻</span>
-                    )}
+                    <img src={request.sender?.avatarUrl || getAvatarUrl(request.sender?.username)} alt={request.sender?.username || 'anonymous'} className="avatar-img" />
                   </Link>
 
                   <div className="request-user-info" style={{ flexGrow: 1 }}>
                     <Link to={`/profile/${request.sender?.id}`} className="request-user-name" style={{ textDecoration: 'none', color: 'var(--color-text-primary)', fontWeight: 600 }}>
-                      {request.sender?.username ? `@${request.sender.username}` : (request.sender?.name || 'User')}
+                      {request.sender?.username ? `@${request.sender.username}` : 'User'}
                     </Link>
                     <span className="request-user-meta" style={{ display: 'block', fontSize: '12px', color: 'var(--color-text-secondary)' }}>
                       {request.sender?.organizations ? `at ${request.sender.organizations}` : ''}
@@ -148,15 +145,11 @@ const Network = () => {
                   <div className="connection-card-cover" style={{ backgroundColor: 'var(--color-primary-light)' }}></div>
                   <div className="connection-card-body">
                     <Link to={`/profile/${conn.user?.id}`} className="avatar connection-avatar" style={{ width: 64, height: 64, border: '3px solid var(--color-bg-card)', display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
-                      {conn.user?.image ? (
-                        <img src={conn.user.image} alt={conn.user.name} className="avatar-img" />
-                      ) : (
-                        <span style={{ fontSize: 32 }}>👻</span>
-                      )}
+                      <img src={conn.user?.avatarUrl || getAvatarUrl(conn.user?.username)} alt={conn.user?.username || 'anonymous'} className="avatar-img" />
                     </Link>
                     
                     <Link to={`/profile/${conn.user?.id}`} className="connection-name" style={{ textDecoration: 'none', color: 'var(--color-text-primary)', fontWeight: 600 }}>
-                      {conn.user?.username ? `@${conn.user.username}` : (conn.user?.name || 'User')}
+                      {conn.user?.username ? `@${conn.user.username}` : 'User'}
                     </Link>
 
                     <span className="connection-role" style={{ fontSize: '12px', color: 'var(--color-text-secondary)', display: 'block', height: '36px', overflow: 'hidden', padding: '0 8px' }}>

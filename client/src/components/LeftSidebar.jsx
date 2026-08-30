@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from './AuthContext';
+import { getAvatarUrl } from '../lib/avatar';
 import './Sidebar.css';
 
 const LeftSidebar = () => {
@@ -14,23 +15,14 @@ const LeftSidebar = () => {
         <div className="profile-bg-image" style={{ backgroundColor: 'var(--color-primary-light)', height: 56 }}></div>
         <div className="profile-info" style={{ padding: '0 16px 16px', borderBottom: '1px solid var(--color-border)' }}>
           <Link to="/profile" className="avatar profile-avatar" style={{ width: 64, height: 64, margin: '-32px auto 12px', border: '3px solid var(--color-bg-card)', display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
-            {user.image ? (
-              <img src={user.image} alt={user.name} className="avatar-img" />
-            ) : (
-              <span style={{ fontSize: 32 }}>👻</span>
-            )}
+            <img src={user.avatarUrl || getAvatarUrl(user.username)} alt={user.username} className="avatar-img" />
           </Link>
           
-          <h2 className="text-h3" style={{ textAlign: 'center', marginBottom: 2 }}>
+          <h2 className="text-h3" style={{ textAlign: 'center', marginBottom: 10 }}>
             <Link to="/profile" style={{ textDecoration: 'none', color: 'var(--color-text-primary)' }}>
-              {user.username ? `@${user.username}` : (user.name || 'User')}
+              {user.username ? `@${user.username}` : 'User'}
             </Link>
           </h2>
-          {user.name && user.name !== user.username && user.name !== 'Anonymous User' && (
-            <p className="text-secondary" style={{ textAlign: 'center', marginBottom: 10, fontSize: '12px' }}>
-              {user.name}
-            </p>
-          )}
           
           <p className="text-secondary" style={{ textAlign: 'center', padding: '0 8px', fontSize: '12px', color: 'var(--color-text-primary)', fontWeight: 500 }}>
             {user.role === 'student' ? 'Student' : user.position || 'Professional'}

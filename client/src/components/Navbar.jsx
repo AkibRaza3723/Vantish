@@ -4,6 +4,7 @@ import { Home, Users, Bell, User, Search, PlusSquare, Sun, Moon, LogOut } from '
 import { useTheme } from './ThemeContext';
 import { useAuth } from './AuthContext';
 import { usersApi } from '../api/users';
+import { getAvatarUrl } from '../lib/avatar';
 import './Navbar.css';
 
 const Navbar = ({ onPostClick }) => {
@@ -105,6 +106,7 @@ const Navbar = ({ onPostClick }) => {
                 color: 'var(--color-primary)',
                 letterSpacing: '-0.4px',
                 lineHeight: 1,
+                marginRight: '5 rem',
               }}>Vantish</span>
             </Link>
             
@@ -137,15 +139,11 @@ const Navbar = ({ onPostClick }) => {
                             onClick={() => handleResultClick(userResult.id)}
                           >
                             <div className="avatar" style={{ width: 32, height: 32, flexShrink: 0 }}>
-                              {userResult.image ? (
-                                <img src={userResult.image} alt={userResult.username} className="avatar-img" />
-                              ) : (
-                                <span style={{ fontSize: 16 }}>👻</span>
-                              )}
+                              <img src={userResult.avatarUrl || getAvatarUrl(userResult.username)} alt={userResult.username} className="avatar-img" />
                             </div>
                             <div className="search-result-info">
                               <span className="search-result-name">
-                                {userResult.name || `@${userResult.username}`}
+                                {`@${userResult.username}`}
                               </span>
                               <span className="search-result-meta">
                                 {userResult.role === 'student' ? 'Student' : userResult.position || 'Professional'} at {userResult.organizations}

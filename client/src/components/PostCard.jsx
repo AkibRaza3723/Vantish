@@ -6,6 +6,7 @@ import { votesApi } from '../api/votes';
 import { commentsApi } from '../api/comments';
 import { postsApi } from '../api/posts';
 import { useAuth } from './AuthContext';
+import { getAvatarUrl } from '../lib/avatar';
 import './PostCard.css';
 
 const formatRelativeTime = (dateStr) => {
@@ -34,6 +35,11 @@ const PostCard = ({ post, onPostRemoved }) => {
   const [comments, setComments] = useState([]);
   const [commentsLoading, setCommentsLoading] = useState(false);
   const [newCommentText, setNewCommentText] = useState('');
+  const [commentsCount, setCommentsCount] = useState(post._count?.comments || 0);
+
+  useEffect(() => {
+    setCommentsCount(post._count?.comments || 0);
+  }, [post.id, post._count?.comments]);
   
   // Modals and Reporting
   const [showReportPostModal, setShowReportPostModal] = useState(false);
@@ -125,7 +131,7 @@ const PostCard = ({ post, onPostRemoved }) => {
       if (response && response.comment) {
         // Prepend new comment
         setComments(prev => [response.comment, ...prev]);
-        post.comments = (post.comments || 0) + 1; // update parent cache count locally if needed
+        setCommentsCount(prev => prev + 1);
       }
     } catch (err) {
       setNewCommentText(tempText);
@@ -139,7 +145,8 @@ const PostCard = ({ post, onPostRemoved }) => {
 
     try {
       await commentsApi.deleteComment(commentId);
-      setComments(prev => prev.filter(c => c.id !== commentId));
+      await loadComments();
+      setCommentsCount(prev => Math.max(0, prev - 1));
     } catch (err) {
       alert('Failed to delete comment: ' + err.message);
     }
@@ -181,8 +188,8 @@ const PostCard = ({ post, onPostRemoved }) => {
     try {
       await commentsApi.reportComment(reportingCommentId, reportReason);
       setShowReportCommentModal(false);
-      // Remove reported comment immediately since backend hides it on first report
-      setComments(prev => prev.filter(c => c.id !== reportingCommentId));
+      await loadComments();
+      setCommentsCount(prev => Math.max(0, prev - 1));
       setReportReason('');
       setReportingCommentId(null);
       alert('Comment reported and hidden.');
@@ -215,17 +222,13 @@ const PostCard = ({ post, onPostRemoved }) => {
       {/* Post Header */}
       <div className="post-header">
         <Link to={`/profile/${post.authorId}`} className="avatar" style={{ width: 44, height: 44, flexShrink: 0 }}>
-          {post.author?.image ? (
-            <img src={post.author.image} alt={post.author?.name} className="avatar-img" />
-          ) : (
-            <span style={{ fontSize: 22 }}>👻</span>
-          )}
+          <img src={post.author?.avatarUrl || getAvatarUrl(post.author?.username)} alt={post.author?.username || 'anonymous'} className="avatar-img" />
         </Link>
         
         <div className="post-meta" style={{ flexGrow: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Link to={`/profile/${post.authorId}`} className="text-h3" style={{ margin: 0, textDecoration: 'none', color: 'var(--color-text-primary)' }}>
-              {post.author?.username ? `@${post.author.username}` : post.author?.name || 'Anonymous'}
+              {post.author?.username ? `@${post.author.username}` : 'Anonymous'}
             </Link>
             <span className="text-secondary" style={{ fontSize: '11px' }}>
               • {formatRelativeTime(post.createdAt)}
@@ -264,7 +267,7 @@ const PostCard = ({ post, onPostRemoved }) => {
           <span>👎 {notRelatedCount} Not Related</span>
         </span>
         <span className="text-secondary" style={{ cursor: 'pointer' }} onClick={() => setShowComments(!showComments)}>
-          {post._count?.comments || comments.length} comments
+          {commentsCount} comments
         </span>
       </div>
 
@@ -313,11 +316,7 @@ const PostCard = ({ post, onPostRemoved }) => {
           {/* Add Comment Input */}
           <form onSubmit={handleAddComment} className="comment-composer">
             <div className="avatar" style={{ width: 32, height: 32, flexShrink: 0 }}>
-              {currentUser?.image ? (
-                <img src={currentUser.image} alt={currentUser?.name} className="avatar-img" />
-              ) : (
-                <span style={{ fontSize: 16 }}>👻</span>
-              )}
+              <img src={currentUser?.avatarUrl || getAvatarUrl(currentUser?.username)} alt={currentUser?.username || 'anonymous'} className="avatar-img" />
             </div>
             
             <div className="comment-input-container">
@@ -344,17 +343,13 @@ const PostCard = ({ post, onPostRemoved }) => {
               {comments.map((comment) => (
                 <div key={comment.id} className="comment-item">
                   <Link to={`/profile/${comment.authorId}`} className="avatar" style={{ width: 32, height: 32, flexShrink: 0 }}>
-                    {comment.author?.image ? (
-                      <img src={comment.author.image} alt={comment.author?.name} className="avatar-img" />
-                    ) : (
-                      <span style={{ fontSize: 16 }}>👻</span>
-                    )}
+                    <img src={comment.author?.avatarUrl || getAvatarUrl(comment.author?.username)} alt={comment.author?.username || 'anonymous'} className="avatar-img" />
                   </Link>
 
                   <div className="comment-bubble">
                     <div className="comment-header">
                       <Link to={`/profile/${comment.authorId}`} className="comment-author-name" style={{ textDecoration: 'none' }}>
-                        {comment.author?.username ? `@${comment.author.username}` : comment.author?.name || 'Anonymous'}
+                        {comment.author?.username ? `@${comment.author.username}` : 'Anonymous'}
                       </Link>
                       <span className="comment-time">{formatRelativeTime(comment.createdAt)}</span>
                     </div>
