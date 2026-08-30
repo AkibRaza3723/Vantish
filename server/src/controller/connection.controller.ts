@@ -1,6 +1,8 @@
 import type { Request, Response } from "express";
 import prisma from "../lib/db/dbConnect.js";
 import { respondSchema } from "../validators/connection.validator.js";
+import { notificationService } from "../services/notification.service.js";
+import { NotificationType } from "../generated/prisma/enums.js";
 
 // ─────────────────────────────────────────────────────────────────
 // POST /api/v1/connection/send/:receiverId
@@ -49,6 +51,25 @@ export async function sendRequest(req: Request, res: Response) {
                 receiver: { select: { id: true, username: true, avatarUrl: true } },
             },
         });
+
+        // Trigger notification
+        try {
+            const sender = await prisma.user.findUnique({
+                where: { id: senderId },
+                select: { username: true }
+            });
+            const actorName = sender?.username ? `@${sender.username}` : "Anonymous";
+
+            await notificationService.create({
+                userId: receiverId as string,
+                actorId: senderId,
+                type: NotificationType.CONNECTION_REQUEST,
+                message: `${actorName} sent you a connection request.`,
+                connectionId: connection.id,
+            });
+        } catch (notifErr) {
+            console.error("Failed to create connection request notification:", notifErr);
+        }
 
         return res.status(201).json({ message: "Connection request sent", connection });
     } catch (error) {
@@ -108,6 +129,29 @@ export async function respondToRequest(req: Request, res: Response) {
             },
         });
 
+        // Trigger notification or clean up
+        try {
+            if (action === "ACCEPTED") {
+                const receiver = await prisma.user.findUnique({
+                    where: { id: userId },
+                    select: { username: true }
+                });
+                const actorName = receiver?.username ? `@${receiver.username}` : "Anonymous";
+
+                await notificationService.create({
+                    userId: connection.senderId,
+                    actorId: userId,
+                    type: NotificationType.CONNECTION_ACCEPTED,
+                    message: `${actorName} accepted your connection request.`,
+                    connectionId: connection.id,
+                });
+            } else if (action === "REJECTED") {
+                await notificationService.deleteByConnectionId(connection.id);
+            }
+        } catch (notifErr) {
+            console.error("Failed to process connection response notification:", notifErr);
+        }
+
         return res.status(200).json({
             message: `Connection request ${action.toLowerCase()}`,
             connection: updated,
@@ -140,6 +184,12 @@ export async function removeConnection(req: Request, res: Response) {
         }
 
         await prisma.connection.delete({ where: { id: connectionId as string } });
+
+        try {
+            await notificationService.deleteByConnectionId(connectionId as string);
+        } catch (notifErr) {
+            console.error("Failed to delete notifications on connection removal:", notifErr);
+        }
 
         return res.status(200).json({ message: "Connection removed" });
     } catch (error) {

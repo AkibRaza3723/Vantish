@@ -5,6 +5,8 @@ import {
     createPostSchema,
     updatePostSchema,
 } from "../validators/post.validator.js";
+import { notificationService } from "../services/notification.service.js";
+import { NotificationType } from "../generated/prisma/enums.js";
 
 export async function createPost(req: Request, res: Response) {
     const parsed = createPostSchema.safeParse(req.body);
@@ -46,6 +48,42 @@ export async function createPost(req: Request, res: Response) {
                 },
             },
         });
+
+        // Trigger notifications for accepted connections
+        try {
+            const author = await prisma.user.findUnique({
+                where: { id: authorId },
+                select: { username: true }
+            });
+            const actorName = author?.username ? `@${author.username}` : "Anonymous";
+
+            const connections = await prisma.connection.findMany({
+                where: {
+                    status: "ACCEPTED",
+                    OR: [{ senderId: authorId }, { receiverId: authorId }],
+                },
+                select: {
+                    senderId: true,
+                    receiverId: true,
+                },
+            });
+
+            const recipientIds = connections.map(c => 
+                c.senderId === authorId ? c.receiverId : c.senderId
+            );
+
+            for (const recipientId of recipientIds) {
+                await notificationService.create({
+                    userId: recipientId,
+                    actorId: authorId,
+                    type: NotificationType.CONNECTION_POST,
+                    message: `${actorName} created a new post.`,
+                    postId: post.id,
+                });
+            }
+        } catch (notifErr) {
+            console.error("Failed to trigger CONNECTION_POST notifications:", notifErr);
+        }
 
         return res.status(201).json({ message: "Post created", post });
     } catch (error) {
@@ -333,6 +371,19 @@ export async function reportPost(req: Request, res: Response) {
                 message: "Post has been removed due to multiple reports",
                 autoDeleted: true,
             });
+        }
+
+        // Trigger notification (anonymous reporter)
+        try {
+            await notificationService.create({
+                userId: post.authorId,
+                actorId: null, // Keep reporter anonymous
+                type: NotificationType.POST_REPORTED,
+                message: "Your post has been reported and is under review.",
+                postId: post.id,
+            });
+        } catch (notifErr) {
+            console.error("Failed to create post reported notification:", notifErr);
         }
 
         return res.status(201).json({

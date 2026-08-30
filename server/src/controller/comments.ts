@@ -5,6 +5,8 @@ import {
     updateCommentSchema,
     reportCommentSchema,
 } from "../validators/comment.validator.js";
+import { notificationService } from "../services/notification.service.js";
+import { NotificationType } from "../generated/prisma/enums.js";
 
 export async function createComment(req: Request, res: Response) {
     const parsed = createCommentSchema.safeParse(req.body);
@@ -26,6 +28,33 @@ export async function createComment(req: Request, res: Response) {
                 },
             },
         }); 
+
+        // Trigger notification
+        try {
+            const post = await prisma.posts.findUnique({
+                where: { id: postId },
+                select: { authorId: true }
+            });
+            if (post) {
+                const commenter = await prisma.user.findUnique({
+                    where: { id: authorId },
+                    select: { username: true }
+                });
+                const actorName = commenter?.username ? `@${commenter.username}` : "Anonymous";
+
+                await notificationService.create({
+                    userId: post.authorId,
+                    actorId: authorId,
+                    type: NotificationType.POST_COMMENTED,
+                    message: `${actorName} commented on your post.`,
+                    postId,
+                    commentId: comment.id,
+                });
+            }
+        } catch (notifErr) {
+            console.error("Failed to create comment notification:", notifErr);
+        }
+
         return res.status(201).json({ message: "Comment created", comment });
     } catch (error) {
         return res.status(500).json({ error: "Internal server error" });
@@ -82,7 +111,7 @@ export async function getComments(req: Request, res: Response) {
 }
 
 export async function deleteComment(req: Request, res: Response) {
-    const commentId = String(req.params.comentId);  // cast: req.params is string | string[] | undefined
+    const commentId = String(req.params.commentId);  // cast: req.params is string | string[] | undefined
     const userId = req.session.user.id;
 
     const existing = await prisma.comments.findUnique({ where: { id: commentId } });
@@ -145,6 +174,20 @@ export async function reportComment(req: Request, res: Response) {
             where: { id: commentId },
             data: { isHidden: true },
         });
+
+        // Trigger notification (anonymous reporter)
+        try {
+            await notificationService.create({
+                userId: comment.authorId,
+                actorId: null, // Keep reporter anonymous
+                type: NotificationType.COMMENT_REPORTED,
+                message: "Your comment has been reported and is under review.",
+                commentId: comment.id,
+                postId: comment.postId,
+            });
+        } catch (notifErr) {
+            console.error("Failed to create comment reported notification:", notifErr);
+        }
 
         return res.status(201).json({
             message: "Comment reported and hidden successfully",

@@ -2,6 +2,8 @@ import type { Request, Response } from "express";
 import prisma from "../lib/db/dbConnect.js";
 import { castVoteSchema } from "../validators/vote.validator.js";
 import { VoteType } from "../generated/prisma/enums.js";
+import { notificationService } from "../services/notification.service.js";
+import { NotificationType } from "../generated/prisma/enums.js";
 
 // ─────────────────────────────────────────────
 // POST /api/posts/:postId/vote
@@ -54,6 +56,27 @@ export async function castOrToggleVote(req: Request, res: Response) {
                 }),
             ]);
 
+            // Trigger notification
+            try {
+                const voter = await prisma.user.findUnique({
+                    where: { id: voterId },
+                    select: { username: true }
+                });
+                const actorName = voter?.username ? `@${voter.username}` : "Anonymous";
+                const notifType = voteType === VoteType.RELATED ? NotificationType.POST_RELATED : NotificationType.POST_NOT_RELATED;
+                const verb = voteType === VoteType.RELATED ? "related" : "not related";
+
+                await notificationService.create({
+                    userId: post.authorId,
+                    actorId: voterId,
+                    type: notifType,
+                    message: `${actorName} marked your post as ${verb}.`,
+                    postId: post.id,
+                });
+            } catch (notifErr) {
+                console.error("Failed to create vote notification:", notifErr);
+            }
+
             return res.status(201).json({ message: "Vote cast", vote: newVote });
         }
 
@@ -71,6 +94,14 @@ export async function castOrToggleVote(req: Request, res: Response) {
                     data: { [counterField]: { decrement: 1 } },
                 }),
             ]);
+
+            // Clean up notification
+            try {
+                const notifType = voteType === VoteType.RELATED ? NotificationType.POST_RELATED : NotificationType.POST_NOT_RELATED;
+                await notificationService.deleteByPostAndActorAndType(post.id, voterId, notifType);
+            } catch (notifErr) {
+                console.error("Failed to delete vote notification:", notifErr);
+            }
 
             return res.status(200).json({ message: "Vote removed" });
         }
@@ -94,6 +125,30 @@ export async function castOrToggleVote(req: Request, res: Response) {
                 },
             }),
         ]);
+
+        // Change notification
+        try {
+            const oldNotifType = existingVote.voteType === VoteType.RELATED ? NotificationType.POST_RELATED : NotificationType.POST_NOT_RELATED;
+            await notificationService.deleteByPostAndActorAndType(post.id, voterId, oldNotifType);
+
+            const voter = await prisma.user.findUnique({
+                where: { id: voterId },
+                select: { username: true }
+            });
+            const actorName = voter?.username ? `@${voter.username}` : "Anonymous";
+            const newNotifType = voteType === VoteType.RELATED ? NotificationType.POST_RELATED : NotificationType.POST_NOT_RELATED;
+            const verb = voteType === VoteType.RELATED ? "related" : "not related";
+
+            await notificationService.create({
+                userId: post.authorId,
+                actorId: voterId,
+                type: newNotifType,
+                message: `${actorName} marked your post as ${verb}.`,
+                postId: post.id,
+            });
+        } catch (notifErr) {
+            console.error("Failed to update vote notification:", notifErr);
+        }
 
         return res.status(200).json({ message: "Vote changed", vote: updatedVote });
     } catch (error) {

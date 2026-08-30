@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { NavLink, useNavigate, Link } from 'react-router-dom';
+import { NavLink, useNavigate, Link, useLocation } from 'react-router-dom';
 import { Home, Users, Bell, User, Search, PlusSquare, Sun, Moon, LogOut } from 'lucide-react';
 import { useTheme } from './ThemeContext';
 import { useAuth } from './AuthContext';
 import { usersApi } from '../api/users';
+import { notificationsApi } from '../api/notifications';
 import { getAvatarUrl } from '../lib/avatar';
 import './Navbar.css';
 
@@ -11,12 +12,32 @@ const Navbar = ({ onPostClick }) => {
   const { theme, toggleTheme } = useTheme();
   const { logout, user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
   const searchRef = useRef(null);
+
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  const fetchUnreadCount = async () => {
+    try {
+      const response = await notificationsApi.getUnreadCount();
+      setUnreadCount(response.count || 0);
+    } catch (err) {
+      console.error('Failed to fetch unread count:', err);
+    }
+  };
+
+  useEffect(() => {
+    if (user) {
+      fetchUnreadCount();
+      const interval = setInterval(fetchUnreadCount, 30000);
+      return () => clearInterval(interval);
+    }
+  }, [user, location.pathname]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -79,7 +100,28 @@ const Navbar = ({ onPostClick }) => {
       </li>
       <li className="nav-item">
         <NavLink to="/notifications" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-          <Bell className="nav-icon" size={20} />
+          <div style={{ position: 'relative', display: 'inline-flex' }}>
+            <Bell className="nav-icon" size={20} />
+            {unreadCount > 0 && (
+              <span style={{
+                position: 'absolute',
+                top: '-6px',
+                right: '-6px',
+                backgroundColor: '#ef4444',
+                color: '#ffffff',
+                fontSize: '10px',
+                fontWeight: 'bold',
+                borderRadius: '50%',
+                width: '16px',
+                height: '16px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                {unreadCount}
+              </span>
+            )}
+          </div>
           <span className="nav-text">Notifications</span>
         </NavLink>
       </li>

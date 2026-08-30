@@ -3,6 +3,7 @@ import commentRouter from "./comments.js";
 import postRouter from "./post.routes.js";
 import userRouter from "./user.routes.js";
 import connectionRouter from "./connection.routes.js";
+import notificationRouter from "./notification.js";
 
 export function routes(app : Express){
     
@@ -12,4 +13,5 @@ export function routes(app : Express){
     // no separate top-level registration needed
     app.use("/api/user", userRouter);
     app.use("/api/connection", connectionRouter);
+    app.use("/api/notification", notificationRouter);
 }
