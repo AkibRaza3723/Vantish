@@ -110,9 +110,7 @@ const Onboarding = () => {
         payload.Experience = Number(formData.Experience) || 0;
       }
 
-      console.log('Submitting onboarding payload:', payload);
       const res = await usersApi.completeProfile(payload);
-      console.log('Onboarding response from server:', res);
       await refreshUser(); // This triggers redirect to /feed in RouteGuards
     } catch (err) {
       console.error('Onboarding submission error:', err);

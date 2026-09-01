@@ -9,13 +9,16 @@ const CATEGORIES = [
   { value: 'RED_FLAG', label: 'Red Flag' },
   { value: 'BURNOUT_LOG', label: 'Burnout Log' },
   { value: 'COMPENSATION', label: 'Compensation & Salary' },
-  { value: 'CULTURE', label: 'Workplace Culture' }
+  { value: 'CULTURE', label: 'Workplace Culture' },
+  { value: 'Confession', label: 'Confession' },
+  { value: 'FailStory', label: 'Fail Story' },
+  { value: 'General', label: 'General' }
 ];
 
 const CreatePostModal = ({ onClose, onPostCreated }) => {
   const { user } = useAuth();
   const [content, setContent] = useState('');
-  const [category, setCategory] = useState('CULTURE');
+  const [category, setCategory] = useState('General');
   const [stressRating, setStressRating] = useState(1);
   const [selectedImage, setSelectedImage] = useState(null);
   const [imagePreviewUrl, setImagePreviewUrl] = useState('');

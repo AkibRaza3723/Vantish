@@ -7,6 +7,7 @@ import prisma from "./db/dbConnect.js";
 const rawTrustedOrigins = [
     process.env.BETTER_AUTH_URL,
     process.env.FRONTEND_URL,
+    'https://*.vercel.app',
     'https://vantish.online',
     'https://www.vantish.online',
     'http://localhost:5173',
@@ -31,7 +32,6 @@ export const auth = betterAuth({
             ? {
                   sameSite: "none",
                   secure: true,
-                  partitioned: true,
               }
             : {
                   sameSite: "lax",

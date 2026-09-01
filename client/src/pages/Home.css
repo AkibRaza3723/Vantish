@@ -44,3 +44,21 @@
 .feed-divider span {
   font-size: 12px;
 }
+
+/* Custom scrollbar styling for category filters */
+.category-filters-container::-webkit-scrollbar {
+  height: 5px;
+}
+
+.category-filters-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.category-filters-container::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 10px;
+}
+
+.category-filters-container::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-disabled);
+}

@@ -95,8 +95,6 @@ export async function completeProfile(req: Request, res: Response) {
 // ─────────────────────────────────────────────────────────────────
 export async function getMyProfile(req: Request, res: Response) {
     const userId = req.session.user.id;
-    console.log("getMyProfile queried userId:", userId);
-    console.log("Session user object:", req.session.user);
 
     try {
         const user = await prisma.user.findUnique({
