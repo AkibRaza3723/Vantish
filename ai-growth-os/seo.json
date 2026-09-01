@@ -1,5 +1,10 @@
 {
   "domain": "akibraza3723/vantish",
+  "patchId": "2907de3d-4854-4892-b189-44f27bf5ea5c",
+  "proposalType": "canonical",
+  "before": "",
+  "after": "github://akibraza3723/Vantish/client/index.html",
+  "updatedAt": "2026-09-01T13:02:22.936Z"
   "patchId": "7e8c3fb7-5861-41f2-879b-c9714bbff3b0",
   "proposalType": "open_graph",
   "before": "",

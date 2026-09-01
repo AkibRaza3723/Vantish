@@ -1,3 +1,4 @@
+# Applied: canonical
 # Applied: open_graph
 # Applied: canonical
 # Applied: faq_schema
