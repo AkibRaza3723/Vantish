@@ -1,0 +1,8 @@
+{
+  "domain": "akibraza3723/vantish",
+  "patchId": "0f047e29-8236-481f-a21c-26fb0eb6e82e",
+  "proposalType": "open_graph",
+  "before": "",
+  "after": "<meta property=\"og:type\" content=\"website\" />\n<meta property=\"og:site_name\" content=\"akibraza3723\" />\n<meta property=\"og:title\" content=\"Readme.Md | akibraza3723\" />\n<meta property=\"og:description\" content=\"Discover akibraza3723: improve SEO, AI visibility, and on-page performance with clear, trusted website improvements.\" />\n<meta property=\"og:url\" content=\"github://akibraza3723/Vantish/readme.md\" />",
+  "updatedAt": "2026-09-01T13:01:41.977Z"
+}
