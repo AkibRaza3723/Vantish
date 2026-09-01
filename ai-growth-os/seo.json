@@ -1,0 +1,8 @@
+{
+  "domain": "akibraza3723/vantish",
+  "patchId": "6caed70e-3f49-46d2-b898-dee0c746427e",
+  "proposalType": "canonical",
+  "before": "",
+  "after": "github://akibraza3723/Vantish/server/.agents/skills/prisma-cli/SKILL.md",
+  "updatedAt": "2026-09-01T13:01:29.856Z"
+}
