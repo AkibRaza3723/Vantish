@@ -2,7 +2,7 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 
 
-import prisma from "./db/dbConnect";
+import prisma from "./db/dbConnect.js";
 
 export const auth = betterAuth({
     baseURL: process.env.BETTER_AUTH_URL || 'http://localhost:3000',

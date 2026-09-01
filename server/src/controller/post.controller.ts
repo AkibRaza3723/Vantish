@@ -68,7 +68,7 @@ export async function createPost(req: Request, res: Response) {
                 },
             });
 
-            const recipientIds = connections.map(c => 
+            const recipientIds = connections.map((c: { senderId: string; receiverId: string }) => 
                 c.senderId === authorId ? c.receiverId : c.senderId
             );
 
