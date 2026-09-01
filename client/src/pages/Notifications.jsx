@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Bell, CheckSquare } from 'lucide-react';
 import { notificationsApi } from '../api/notifications';
+import { useToast } from '../components/Toast';
 import { getAvatarUrl } from '../lib/avatar';
 import './Notifications.css';
 
 const Notifications = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [filter, setFilter] = useState('all');
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -46,7 +48,7 @@ const Notifications = () => {
       setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
     } catch (err) {
       console.error('Failed to mark all as read:', err);
-      alert('Error: ' + err.message);
+      toast.error('Error: ' + err.message);
     }
   };
 

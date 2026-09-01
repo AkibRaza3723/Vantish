@@ -68,7 +68,7 @@ export async function createPost(req: Request, res: Response) {
                 },
             });
 
-            const recipientIds = connections.map(c => 
+            const recipientIds = connections.map((c: { senderId: string; receiverId: string }) => 
                 c.senderId === authorId ? c.receiverId : c.senderId
             );
 
@@ -109,7 +109,7 @@ export async function getFeed(req: Request, res: Response) {
                 orderBy: { createdAt: "desc" },
                 include: {
                     author: {
-                        select: { id: true, username: true, avatarUrl: true },
+                        select: { id: true, username: true, avatarUrl: true, organizations: true },
                     },
                     _count: {
                         select: { comments: true, votes: true },
@@ -145,13 +145,13 @@ export async function getPostById(req: Request, res: Response) {
             where: { id: postId as string },
             include: {
                 author: {
-                    select: { id: true, username: true, avatarUrl: true },
+                    select: { id: true, username: true, avatarUrl: true, organizations: true },
                 },
                 comments: {
                     orderBy: { createdAt: "desc" },
                     include: {
                         author: {
-                            select: { id: true, username: true, avatarUrl: true },
+                            select: { id: true, username: true, avatarUrl: true, organizations: true },
                         },
                     },
                 },
@@ -190,7 +190,7 @@ export async function getPostsByUser(req: Request, res: Response) {
                 orderBy: { createdAt: "desc" },
                 include: {
                     author: {
-                        select: { id: true, username: true, avatarUrl: true },
+                        select: { id: true, username: true, avatarUrl: true, organizations: true },
                     },
                     _count: {
                         select: { comments: true, votes: true },
@@ -201,7 +201,7 @@ export async function getPostsByUser(req: Request, res: Response) {
                             content: true,
                             createdAt: true,
                             author: {
-                                select: { id: true, username: true, avatarUrl: true },
+                                select: { id: true, username: true, avatarUrl: true, organizations: true },
                             },
                         }
                     }

@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './components/ThemeContext';
 import { AuthProvider } from './components/AuthContext';
+import { ToastProvider } from './components/Toast';
 import { ProtectedRoute, OnboardingRoute, PublicRoute } from './components/RouteGuards';
 import Layout from './components/Layout';
 import Home from './pages/Home';
@@ -16,6 +17,7 @@ import Onboarding from './pages/Onboarding';
 function App() {
   return (
     <ThemeProvider>
+      <ToastProvider>
       <AuthProvider>
         <Router>
           <Routes>
@@ -102,6 +104,7 @@ function App() {
           </Routes>
         </Router>
       </AuthProvider>
+      </ToastProvider>
     </ThemeProvider>
   );
 }

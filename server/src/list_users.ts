@@ -17,7 +17,7 @@ async function diagnoseDB() {
     });
 
     console.log('\nSample users in database:');
-    users.forEach(u => {
+    users.forEach((u: typeof users[number]) => {
       console.log(`- ID: ${u.id}`);
       console.log(`  Name: ${u.name}`);
       console.log(`  Email: ${u.email}`);

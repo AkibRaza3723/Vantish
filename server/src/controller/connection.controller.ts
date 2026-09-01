@@ -223,7 +223,7 @@ export async function getMyConnections(req: Request, res: Response) {
         });
 
         // Flatten: return only the "other" person, not yourself
-        const connectedUsers = connections.map((c) => ({
+        const connectedUsers = connections.map((c: typeof connections[number]) => ({
             connectionId: c.id,
             connectedAt: c.createdAt,
             user: c.sender.id === userId ? c.receiver : c.sender,

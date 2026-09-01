@@ -122,9 +122,9 @@ const Onboarding = () => {
 
   return (
     <div className="onboarding-page">
-      <div className="onboarding-container card">
+      <div className="onboarding-container card"> 
         <div className="onboarding-header">
-          <h1 className="logo-text">Link<span>out</span></h1>
+          <h1 className="logo-text">Vantish</h1>
           <div className="step-indicator">
             <span className={step >= 1 ? 'active' : ''}>1</span>
             <span className={step >= 2 ? 'active' : ''}>2</span>

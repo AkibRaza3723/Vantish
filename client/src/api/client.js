@@ -1,4 +1,6 @@
-const BASE_URL = `${import.meta.env.VITE_BACKEND_URL}/api/v1`;
+const rawBackendUrl = import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const backendUrl = rawBackendUrl.replace(/\/+$/, '');
+const BASE_URL = `${backendUrl}/api/v1`;
 
 async function handleResponse(response) {
   if (!response.ok) {

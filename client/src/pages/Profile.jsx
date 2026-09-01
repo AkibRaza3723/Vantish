@@ -7,6 +7,7 @@ import { usersApi } from '../api/users';
 import { postsApi } from '../api/posts';
 import { connectionsApi } from '../api/connections';
 import { useAuth } from '../components/AuthContext';
+import { useToast } from '../components/Toast';
 import { Edit2, UserPlus, UserCheck, UserX, Clock, Check, X } from 'lucide-react';
 import { getAvatarUrl } from '../lib/avatar';
 import './Profile.css';
@@ -15,6 +16,7 @@ const Profile = () => {
   const { userId } = useParams();
   const navigate = useNavigate();
   const { user: currentUser, refreshUser: refreshAuthUser } = useAuth();
+  const { toast, confirm } = useToast();
   
   const isOwnProfile = !userId || userId === currentUser?.id;
   const targetUserId = isOwnProfile ? currentUser?.id : userId;
@@ -149,7 +151,7 @@ const Profile = () => {
       if (err.message.includes('already exists')) {
         setConnectionStatus('PENDING_OUTGOING');
       } else {
-        alert('Failed to connect: ' + err.message);
+        toast.error('Failed to connect: ' + err.message);
       }
     } finally {
       setConnectionLoading(false);
@@ -163,7 +165,7 @@ const Profile = () => {
       await connectionsApi.respondToRequest(connectionId, 'ACCEPTED');
       setConnectionStatus('CONNECTED');
     } catch (err) {
-      alert('Failed to accept: ' + err.message);
+      toast.error('Failed to accept: ' + err.message);
     } finally {
       setConnectionLoading(false);
     }
@@ -171,7 +173,14 @@ const Profile = () => {
 
   const handleDisconnect = async () => {
     if (!connectionId) return;
-    if (!window.confirm('Are you sure you want to remove this connection?')) return;
+    const ok = await confirm({
+      title: 'Remove Connection',
+      message: 'Are you sure you want to remove this connection?',
+      variant: 'danger',
+      confirmText: 'Remove',
+      cancelText: 'Cancel',
+    });
+    if (!ok) return;
     
     setConnectionLoading(true);
     try {
@@ -180,7 +189,7 @@ const Profile = () => {
       setConnectionId(null);
       sessionStorage.removeItem(`sent-conn-${targetUserId}`);
     } catch (err) {
-      alert('Failed to disconnect: ' + err.message);
+      toast.error('Failed to disconnect: ' + err.message);
     } finally {
       setConnectionLoading(false);
     }

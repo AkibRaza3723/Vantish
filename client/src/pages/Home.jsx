@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import LeftSidebar from '../components/LeftSidebar';
 import RightSidebar from '../components/RightSidebar';
 import PostCard from '../components/PostCard';
 import CreatePostModal from '../components/CreatePostModal';
 import { SkeletonCard } from '../components/SkeletonLoader';
 import { postsApi } from '../api/posts';
-import { Image, FileText, AlertOctagon } from 'lucide-react';
+import { Image, AlertOctagon } from 'lucide-react';
 import './Home.css';
 
 const CATEGORIES = [
@@ -26,13 +26,13 @@ const Home = () => {
   const [error, setError] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('ALL');
-  
+
   // Pagination
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loadingMore, setLoadingMore] = useState(false);
 
-  const fetchFeedPosts = async (currentPage, reset = false) => {
+  const fetchFeedPosts = useCallback(async (currentPage, reset = false) => {
     if (reset) {
       setLoading(true);
     } else {
@@ -41,12 +41,8 @@ const Home = () => {
     setError('');
 
     try {
-      // Feed API does not support direct category filters in the core backend route parameters (based on controller inspection),
-      // so we load posts and optionally filter them client-side if a specific category is chosen, OR load all.
-      // Let's load feed posts. We fetch 20 posts so we have plenty to show and filter.
       const response = await postsApi.getFeed(currentPage, 30);
       const newPosts = response.posts || [];
-      
       setPosts((prev) => (reset ? newPosts : [...prev, ...newPosts]));
       if (response.pagination) {
         setTotalPages(response.pagination.totalPages || 1);
@@ -57,39 +53,42 @@ const Home = () => {
       setLoading(false);
       setLoadingMore(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchFeedPosts(1, true);
-  }, []);
+  }, [fetchFeedPosts]);
 
-  const handlePostCreated = () => {
-    // Reload feed from step 1
+  const handlePostCreated = useCallback(() => {
     setPage(1);
     fetchFeedPosts(1, true);
-  };
+  }, [fetchFeedPosts]);
 
-  const handlePostRemoved = (postId) => {
+  const handlePostRemoved = useCallback((postId) => {
     setPosts((prev) => prev.filter((p) => p.id !== postId));
-  };
+  }, []);
 
-  // Filter posts client-side based on category
-  const filteredPosts = selectedCategory === 'ALL' 
-    ? posts 
-    : posts.filter(post => post.category === selectedCategory);
+  // Filter posts client-side — memoized so it only recomputes when posts or category changes
+  const filteredPosts = useMemo(
+    () => selectedCategory === 'ALL' ? posts : posts.filter(post => post.category === selectedCategory),
+    [posts, selectedCategory]
+  );
 
-  const loadMore = () => {
+  const loadMore = useCallback(() => {
     if (page < totalPages && !loadingMore) {
       const nextPage = page + 1;
       setPage(nextPage);
       fetchFeedPosts(nextPage, false);
     }
-  };
+  }, [page, totalPages, loadingMore, fetchFeedPosts]);
+
+  const openModal = useCallback(() => setIsModalOpen(true), []);
+  const closeModal = useCallback(() => setIsModalOpen(false), []);
 
   return (
     <div className="grid-layout">
       <LeftSidebar />
-      
+
       <div className="feed-column">
         {/* Composer Start Card */}
         <div className="card create-post-card" style={{ padding: '16px', border: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-card)', color: 'var(--color-text-primary)' }}>
@@ -97,9 +96,9 @@ const Home = () => {
             <div className="avatar" style={{ width: 44, height: 44, flexShrink: 0 }}>
               <span style={{ fontSize: 22 }}>👻</span>
             </div>
-            <button 
+            <button
               className="create-post-input"
-              onClick={() => setIsModalOpen(true)}
+              onClick={openModal}
               style={{
                 flexGrow: 1,
                 border: '1px solid var(--color-border)',
@@ -116,13 +115,13 @@ const Home = () => {
               Vent about your experience anonymously...
             </button>
           </div>
-          
+
           <div className="create-post-actions" style={{ display: 'flex', justifyContent: 'space-around', marginTop: '12px', borderTop: '1px solid var(--color-border)', paddingTop: '10px' }}>
-            <button className="btn-action" onClick={() => setIsModalOpen(true)}>
+            <button className="btn-action" onClick={openModal}>
               <Image size={18} color="#38bdf8" />
               <span className="text-secondary" style={{ fontWeight: 600, fontSize: '12px' }}>Attach Media</span>
             </button>
-            <button className="btn-action" onClick={() => setIsModalOpen(true)}>
+            <button className="btn-action" onClick={openModal}>
               <AlertOctagon size={18} color="#fb7185" />
               <span className="text-secondary" style={{ fontWeight: 600, fontSize: '12px' }}>Log Burnout</span>
             </button>
@@ -130,7 +129,7 @@ const Home = () => {
         </div>
 
         {/* Category Filters Carousel / Row */}
-        <div className="category-filters-container" style={{ display: 'flex', gap: '8px', overflowX: 'auto', padding: '4px 0 12px 0', margin: '8px 0' }}>
+        <div className="category-filters-container" style={{ display: 'flex', gap: '8px', overflowX: 'auto', padding: '4px 0 12px 0', margin: '8px 0', scrollbarWidth: 'none' }}>
           {CATEGORIES.map((cat) => (
             <button
               key={cat.value}
@@ -153,12 +152,12 @@ const Home = () => {
           ))}
         </div>
 
-        {/* Error Alert */}
+        {/* Error */}
         {error && (
           <div className="onboarding-error-alert" style={{ marginBottom: '16px' }}>
             {error}
-            <button 
-              onClick={() => fetchFeedPosts(1, true)} 
+            <button
+              onClick={() => fetchFeedPosts(1, true)}
               style={{ display: 'block', marginTop: '8px', textDecoration: 'underline', color: 'inherit', fontWeight: 600 }}
             >
               Retry Loading Feed
@@ -177,14 +176,13 @@ const Home = () => {
           ) : filteredPosts.length > 0 ? (
             <>
               {filteredPosts.map((post) => (
-                <PostCard 
-                  key={post.id} 
-                  post={post} 
-                  onPostRemoved={handlePostRemoved} 
+                <PostCard
+                  key={post.id}
+                  post={post}
+                  onPostRemoved={handlePostRemoved}
                 />
               ))}
 
-              {/* Load More Button */}
               {page < totalPages && (
                 <button
                   onClick={loadMore}
@@ -211,21 +209,21 @@ const Home = () => {
               <span style={{ fontSize: '48px', display: 'block', marginBottom: '16px' }}>🤫</span>
               <h3 className="text-h3" style={{ color: 'var(--color-text-primary)', marginBottom: '8px' }}>No posts found</h3>
               <p style={{ fontSize: '13px' }}>
-                {selectedCategory !== 'ALL' 
-                  ? `Be the first to speak out in ${CATEGORIES.find(c => c.value === selectedCategory)?.label}.` 
+                {selectedCategory !== 'ALL'
+                  ? `Be the first to speak out in ${CATEGORIES.find(c => c.value === selectedCategory)?.label}.`
                   : 'Be the first person to speak out. Post anonymously above!'}
               </p>
             </div>
           )}
         </div>
       </div>
-      
+
       <RightSidebar />
-      
+
       {isModalOpen && (
-        <CreatePostModal 
-          onClose={() => setIsModalOpen(false)} 
-          onPostCreated={handlePostCreated} 
+        <CreatePostModal
+          onClose={closeModal}
+          onPostCreated={handlePostCreated}
         />
       )}
     </div>

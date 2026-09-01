@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { NavLink, useNavigate, Link, useLocation } from 'react-router-dom';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { NavLink, useNavigate, Link } from 'react-router-dom';
 import { Home, Users, Bell, User, Search, PlusSquare, Sun, Moon, LogOut } from 'lucide-react';
 import { useTheme } from './ThemeContext';
 import { useAuth } from './AuthContext';
@@ -12,7 +12,6 @@ const Navbar = ({ onPostClick }) => {
   const { theme, toggleTheme } = useTheme();
   const { logout, user } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
   
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
@@ -22,14 +21,14 @@ const Navbar = ({ onPostClick }) => {
 
   const [unreadCount, setUnreadCount] = useState(0);
 
-  const fetchUnreadCount = async () => {
+  const fetchUnreadCount = useCallback(async () => {
     try {
       const response = await notificationsApi.getUnreadCount();
       setUnreadCount(response.count || 0);
     } catch (err) {
       console.error('Failed to fetch unread count:', err);
     }
-  };
+  }, []);
 
   useEffect(() => {
     if (user) {
@@ -37,7 +36,7 @@ const Navbar = ({ onPostClick }) => {
       const interval = setInterval(fetchUnreadCount, 30000);
       return () => clearInterval(interval);
     }
-  }, [user, location.pathname]);
+  }, [user, fetchUnreadCount]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
