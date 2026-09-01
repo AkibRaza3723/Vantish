@@ -19,6 +19,12 @@ const isProd = process.env.NODE_ENV === 'production' || (process.env.BETTER_AUTH
 export const auth = betterAuth({
     baseURL: (process.env.BETTER_AUTH_URL || 'http://localhost:3000').replace(/\/$/, ''),
     trustedOrigins,
+    account: {
+        accountLinking: {
+            enabled: true,
+        },
+        skipStateCookieCheck: true, // Stores & verifies OAuth state in DB instead of dropping cross-domain cookies
+    },
     advanced: {
         useSecureCookies: isProd,
         defaultCookieAttributes: isProd

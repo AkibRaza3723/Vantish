@@ -16,14 +16,14 @@ export const authApi = {
   signInSocial: async (provider) => {
     return authClient.signIn.social({
       provider,
-      callbackURL: '/feed',
+      callbackURL: (typeof window !== 'undefined' ? window.location.origin : '') + '/feed',
     });
   },
 
   // Logs out
   signOut: async () => {
     return authClient.signOut({
-      callbackURL: '/',
+      callbackURL: (typeof window !== 'undefined' ? window.location.origin : '') + '/',
     });
   },
 
