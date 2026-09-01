@@ -1,8 +1,8 @@
 {
   "domain": "akibraza3723/vantish",
-  "patchId": "67849925-54af-4a96-ab9b-77094be19c2f",
-  "proposalType": "meta_description",
+  "patchId": "03dcc8f6-4b07-4000-8d5e-3262de3372a1",
+  "proposalType": "open_graph",
   "before": "",
-  "after": "Discover akibraza3723: improve SEO, AI visibility, and on-page performance with clear, trusted website improvements.",
-  "updatedAt": "2026-09-01T13:00:57.148Z"
+  "after": "<meta property=\"og:type\" content=\"website\" />\n<meta property=\"og:site_name\" content=\"akibraza3723\" />\n<meta property=\"og:title\" content=\"Index.Html | akibraza3723\" />\n<meta property=\"og:description\" content=\"Discover akibraza3723: improve SEO, AI visibility, and on-page performance with clear, trusted website improvements.\" />\n<meta property=\"og:url\" content=\"github://akibraza3723/Vantish/client/index.html\" />",
+  "updatedAt": "2026-09-01T13:02:16.666Z"
 }
