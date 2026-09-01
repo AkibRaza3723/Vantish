@@ -1,6 +1,6 @@
 import { createAuthClient } from "better-auth/react";
 
-const rawBackendUrl = import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_URL || "http://localhost:3000";
+const rawBackendUrl = import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_URL 
 const baseURL = rawBackendUrl.replace(/\/+$/, "");
 
 export const authClient = createAuthClient({
