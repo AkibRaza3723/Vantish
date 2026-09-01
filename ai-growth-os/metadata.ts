@@ -2,6 +2,8 @@
 export const aigosMetadata: Record<string, unknown> = {
   // Open Graph tags also in head-snippet.html
   openGraph: { url: "https://akibraza3723/vantish" },
+  // FAQ JSON-LD is in head-snippet.html (not Metadata API)
+  other: { "aigos-faq": "see head-snippet.html" },
 };
 
 export default aigosMetadata;
