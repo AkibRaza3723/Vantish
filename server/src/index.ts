@@ -10,6 +10,9 @@ import { routes } from './routes/index.js';
 const app: Express = express();
 const PORT = process.env.PORT || 3000;
 
+// Trust reverse proxy (Render / AWS / Cloudflare) so Express detects HTTPS
+app.set('trust proxy', 1);
+
 const rawAllowedOrigins = [
     process.env.FRONTEND_URL,
     process.env.BETTER_AUTH_URL,
