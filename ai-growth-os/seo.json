@@ -1,8 +1,8 @@
 {
   "domain": "akibraza3723/vantish",
-  "patchId": "67849925-54af-4a96-ab9b-77094be19c2f",
-  "proposalType": "meta_description",
+  "patchId": "4d171900-bb3e-4e5e-a7be-fa15303a9060",
+  "proposalType": "canonical",
   "before": "",
-  "after": "Discover akibraza3723: improve SEO, AI visibility, and on-page performance with clear, trusted website improvements.",
-  "updatedAt": "2026-09-01T13:00:57.148Z"
+  "after": "github://akibraza3723/Vantish/client/instruction.md",
+  "updatedAt": "2026-09-01T13:02:10.538Z"
 }
