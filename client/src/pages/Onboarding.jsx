@@ -94,20 +94,20 @@ const Onboarding = () => {
     try {
       // Build request body per Zod validator
       const payload = {
-        username: formData.username,
-        bio: formData.bio || undefined,
+        username: formData.username.trim(),
+        bio: formData.bio?.trim() || undefined,
         role: formData.role,
-        organizations: formData.organizations,
+        organizations: formData.organizations.trim(),
         organization_type: formData.organization_type,
-        course: formData.course,
-        avatarUrl: getAvatarUrl(formData.username),
+        course: formData.course.trim(),
+        avatarUrl: getAvatarUrl(formData.username.trim()),
       };
 
       if (formData.role === 'student') {
         payload.graduationYear = Number(formData.graduationYear);
       } else {
-        payload.position = formData.position;
-        payload.Experience = Number(formData.Experience);
+        payload.position = (formData.position || '').trim();
+        payload.Experience = Number(formData.Experience) || 0;
       }
 
       console.log('Submitting onboarding payload:', payload);

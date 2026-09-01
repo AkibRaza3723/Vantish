@@ -4,10 +4,17 @@ const BASE_URL = import.meta.env.VITE_API_URL
 
 async function handleResponse(response) {
   if (!response.ok) {
-    let errorMsg = 'An error occurred';
+    let errorMsg = `HTTP Error ${response.status}`;
     try {
       const data = await response.json();
-      errorMsg = data.error || errorMsg;
+      if (data.fieldErrors && typeof data.fieldErrors === 'object') {
+        const details = Object.entries(data.fieldErrors)
+          .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(', ') : v}`)
+          .join(' | ');
+        errorMsg = `${data.error || 'Validation failed'}: ${details}`;
+      } else if (data.error) {
+        errorMsg = data.error;
+      }
     } catch (e) {
       // Not JSON
     }

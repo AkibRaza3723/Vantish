@@ -14,7 +14,11 @@ function dbConnect():PrismaClient{
         throw new Error("DATABASE_URL is not defined");
     }
 
-    const pool = new Pool({connectionString});
+    const isCloudDb = connectionString.includes("neon.tech") || connectionString.includes("sslmode=require") || process.env.NODE_ENV === "production";
+    const pool = new Pool({
+        connectionString,
+        ssl: isCloudDb ? { rejectUnauthorized: false } : undefined,
+    });
     const adapter = new PrismaPg(pool);
     const prisma = new PrismaClient({adapter});
 
