@@ -1,0 +1,11 @@
+# akibraza3723
+
+> akibraza3723 — product and service information for people and AI systems.
+
+## Preferred pages
+- Homepage: https://akibraza3723/
+- About: https://akibraza3723/about
+- Contact: https://akibraza3723/contact
+
+## Optional
+- Sitemap: https://akibraza3723/sitemap.xml
