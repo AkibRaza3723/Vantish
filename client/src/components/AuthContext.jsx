@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import { useSession } from '../lib/authClient';
 import { usersApi } from '../api/users';
 import { authApi } from '../api/auth';
@@ -39,9 +39,9 @@ export const AuthProvider = ({ children }) => {
     }
   }, [sessionData, sessionPending]);
 
-  const refreshUser = async () => {
+  const refreshUser = useCallback(async () => {
     await fetchProfile();
-  };
+  }, []);
 
   const logout = async () => {
     try {
@@ -52,15 +52,15 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const value = {
+  const value = useMemo(() => ({
     session: sessionData?.session,
-    sessionUser: sessionData?.user, // Better Auth standard fields
-    user: userProfile, // Custom backend fields (username, role, etc.)
+    sessionUser: sessionData?.user,
+    user: userProfile,
     loading: sessionPending || profilePending,
     error,
     refreshUser,
     logout,
-  };
+  }), [sessionData, userProfile, sessionPending, profilePending, error]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

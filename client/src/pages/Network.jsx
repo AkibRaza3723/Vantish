@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import RightSidebar from '../components/RightSidebar';
 import { connectionsApi } from '../api/connections';
+import { useToast } from '../components/Toast';
 import { Check, X, Users, AlertCircle } from 'lucide-react';
 import { getAvatarUrl } from '../lib/avatar';
 import './Network.css';
@@ -11,6 +12,7 @@ const Network = () => {
   const [connections, setConnections] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const { toast, confirm } = useToast();
 
   const fetchNetworkData = async () => {
     setLoading(true);
@@ -40,7 +42,7 @@ const Network = () => {
       setPendingRequests(prev => prev.filter(r => r.id !== requestId));
       fetchNetworkData();
     } catch (err) {
-      alert('Failed to accept connection: ' + err.message);
+      toast.error('Failed to accept connection: ' + err.message);
     }
   };
 
@@ -54,18 +56,25 @@ const Network = () => {
         await connectionsApi.removeConnection(requestId);
         setPendingRequests(prev => prev.filter(r => r.id !== requestId));
       } catch (e) {
-        alert('Failed to ignore request: ' + err.message);
+        toast.error('Failed to ignore request: ' + err.message);
       }
     }
   };
 
   const handleDisconnect = async (connectionId) => {
-    if (!window.confirm('Are you sure you want to remove this connection?')) return;
+    const ok = await confirm({
+      title: 'Remove Connection',
+      message: 'Are you sure you want to remove this connection?',
+      variant: 'danger',
+      confirmText: 'Remove',
+      cancelText: 'Cancel',
+    });
+    if (!ok) return;
     try {
       await connectionsApi.removeConnection(connectionId);
       setConnections(prev => prev.filter(c => c.connectionId !== connectionId));
     } catch (err) {
-      alert('Failed to disconnect: ' + err.message);
+      toast.error('Failed to disconnect: ' + err.message);
     }
   };
 

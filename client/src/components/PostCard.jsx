@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, memo } from 'react';
 import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
 import { ThumbsUp, ThumbsDown, MessageSquare, AlertTriangle, Trash2, Send, X } from 'lucide-react';
@@ -6,6 +6,7 @@ import { votesApi } from '../api/votes';
 import { commentsApi } from '../api/comments';
 import { postsApi } from '../api/posts';
 import { useAuth } from './AuthContext';
+import { useToast } from './Toast';
 import { getAvatarUrl } from '../lib/avatar';
 import './PostCard.css';
 
@@ -22,8 +23,12 @@ const formatRelativeTime = (dateStr) => {
   return `${days}d`;
 };
 
-const PostCard = ({ post, onPostRemoved }) => {
+// Moved outside — never recreated
+const renderCategoryName = (cat) => cat ? cat.replace(/_/g, ' ') : '';
+
+const PostCard = memo(({ post, onPostRemoved }) => {
   const { user: currentUser } = useAuth();
+  const { toast, confirm } = useToast();
   
   // Voting States
   const [votedState, setVotedState] = useState(null); // 'RELATED', 'NOT_RELATED', or null
@@ -64,14 +69,8 @@ const PostCard = ({ post, onPostRemoved }) => {
     fetchUserVote();
   }, [post.id]);
 
-  // Load comments when expanded
-  useEffect(() => {
-    if (showComments) {
-      loadComments();
-    }
-  }, [showComments, post.id]);
-
-  const loadComments = async () => {
+  // Load comments — stable ref so effects don't loop
+  const loadComments = useCallback(async () => {
     setCommentsLoading(true);
     try {
       const response = await commentsApi.getComments(post.id);
@@ -81,7 +80,12 @@ const PostCard = ({ post, onPostRemoved }) => {
     } finally {
       setCommentsLoading(false);
     }
-  };
+  }, [post.id]);
+
+  // Load comments when panel is opened
+  useEffect(() => {
+    if (showComments) loadComments();
+  }, [showComments, loadComments]);
 
   // Voting handler with optimistic updates
   const handleVote = async (type) => {
@@ -114,7 +118,7 @@ const PostCard = ({ post, onPostRemoved }) => {
       setVotedState(previousVotedState);
       setRelatedCount(previousRelated);
       setNotRelatedCount(previousNotRelated);
-      alert('Failed to cast vote: ' + err.message);
+      toast.error('Failed to cast vote: ' + err.message);
     }
   };
 
@@ -135,20 +139,27 @@ const PostCard = ({ post, onPostRemoved }) => {
       }
     } catch (err) {
       setNewCommentText(tempText);
-      alert('Failed to post comment: ' + err.message);
+      toast.error('Failed to post comment: ' + err.message);
     }
   };
 
   // Delete Comment
   const handleDeleteComment = async (commentId) => {
-    if (!window.confirm('Are you sure you want to delete this comment?')) return;
+    const ok = await confirm({
+      title: 'Delete Comment',
+      message: 'Are you sure you want to delete this comment? This cannot be undone.',
+      variant: 'danger',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+    });
+    if (!ok) return;
 
     try {
       await commentsApi.deleteComment(commentId);
       await loadComments();
       setCommentsCount(prev => Math.max(0, prev - 1));
     } catch (err) {
-      alert('Failed to delete comment: ' + err.message);
+      toast.error('Failed to delete comment: ' + err.message);
     }
   };
 
@@ -167,10 +178,10 @@ const PostCard = ({ post, onPostRemoved }) => {
       setReportedPosts(prev => ({ ...prev, [post.id]: true }));
       
       if (response && response.autoDeleted) {
-        alert('This post has been removed as it reached the report threshold.');
+        toast.info('This post has been removed as it reached the report threshold.');
         if (onPostRemoved) onPostRemoved(post.id);
       } else {
-        alert('Thank you. Your report has been submitted for moderation.');
+        toast.success('Thank you. Your report has been submitted for moderation.');
       }
     } catch (err) {
       setReportError(err.message);
@@ -192,7 +203,7 @@ const PostCard = ({ post, onPostRemoved }) => {
       setCommentsCount(prev => Math.max(0, prev - 1));
       setReportReason('');
       setReportingCommentId(null);
-      alert('Comment reported and hidden.');
+      toast.success('Comment reported and hidden.');
     } catch (err) {
       setReportError(err.message);
     }
@@ -200,22 +211,23 @@ const PostCard = ({ post, onPostRemoved }) => {
 
   // Delete own post
   const handleDeletePost = async () => {
-    if (!window.confirm('Are you sure you want to delete this post?')) return;
+    const ok = await confirm({
+      title: 'Delete Post',
+      message: 'Are you sure you want to delete this post? This action cannot be undone.',
+      variant: 'danger',
+      confirmText: 'Delete Post',
+      cancelText: 'Cancel',
+    });
+    if (!ok) return;
     try {
       await postsApi.deletePost(post.id);
       if (onPostRemoved) onPostRemoved(post.id);
     } catch (err) {
-      alert('Failed to delete post: ' + err.message);
+      toast.error('Failed to delete post: ' + err.message);
     }
   };
 
   const isAuthor = currentUser?.id === post.authorId;
-
-  // Render Category Name cleanly
-  const renderCategoryName = (cat) => {
-    if (!cat) return '';
-    return cat.replace(/_/g, ' ');
-  };
 
   return (
     <div className="card post-card">
@@ -226,10 +238,15 @@ const PostCard = ({ post, onPostRemoved }) => {
         </Link>
         
         <div className="post-meta" style={{ flexGrow: 1 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Link to={`/profile/${post.authorId}`} className="text-h3" style={{ margin: 0, textDecoration: 'none', color: 'var(--color-text-primary)' }}>
-              {post.author?.username ? `@${post.author.username}` : 'Anonymous'}
-            </Link>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', flexWrap: 'wrap' }}>
+            <span className="text-h3" style={{ margin: 0, color: 'var(--color-text-primary)', fontSize: '15px' }}>
+              Anonymous
+            </span>
+            {post.author?.organizations && (
+              <span style={{ fontSize: '12px', color: 'var(--color-text-secondary)', fontWeight: 500 }}>
+                from <span style={{ color: 'var(--color-primary)', fontWeight: 600 }}>{post.author.organizations}</span>
+              </span>
+            )}
             <span className="text-secondary" style={{ fontSize: '11px' }}>
               • {formatRelativeTime(post.createdAt)}
             </span>
@@ -498,6 +515,8 @@ const PostCard = ({ post, onPostRemoved }) => {
       )}
     </div>
   );
-};
+});
+
+PostCard.displayName = 'PostCard';
 
 export default PostCard;
