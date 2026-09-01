@@ -105,6 +105,9 @@ enum Category{
   BURNOUT_LOG
   COMPENSATION
   CULTURE
+  Confession 
+  FailStory
+  General
 }
 
 
@@ -118,7 +121,7 @@ model Posts{
   imageUrl String?
   related Int @default(0)
   notRelated Int @default(0)
-  category Category
+  category Category @default(General)
   stressRating Int @default(1)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

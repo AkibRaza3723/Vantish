@@ -14,7 +14,10 @@ const CATEGORIES = [
   { value: 'RED_FLAG', label: 'Red Flags' },
   { value: 'BURNOUT_LOG', label: 'Burnout Logs' },
   { value: 'COMPENSATION', label: 'Compensation' },
-  { value: 'CULTURE', label: 'Culture' }
+  { value: 'CULTURE', label: 'Culture' },
+  { value: 'Confession', label: 'Confession' },
+  { value: 'FailStory', label: 'Fail Story' },
+  { value: 'General', label: 'General' }
 ];
 
 const Home = () => {
@@ -127,7 +130,7 @@ const Home = () => {
         </div>
 
         {/* Category Filters Carousel / Row */}
-        <div className="category-filters-container" style={{ display: 'flex', gap: '8px', overflowX: 'auto', padding: '4px 0 12px 0', margin: '8px 0', scrollbarWidth: 'none' }}>
+        <div className="category-filters-container" style={{ display: 'flex', gap: '8px', overflowX: 'auto', padding: '4px 0 12px 0', margin: '8px 0' }}>
           {CATEGORIES.map((cat) => (
             <button
               key={cat.value}
@@ -138,6 +141,7 @@ const Home = () => {
                 fontSize: '12.5px',
                 fontWeight: 600,
                 whiteSpace: 'nowrap',
+                flexShrink: 0,
                 border: '1px solid var(--color-border)',
                 backgroundColor: selectedCategory === cat.value ? 'var(--color-primary)' : 'var(--color-bg-card)',
                 color: selectedCategory === cat.value ? '#ffffff' : 'var(--color-text-secondary)',
