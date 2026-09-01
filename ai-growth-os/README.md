@@ -1,4 +1,4 @@
-# Applied: meta_description
+# Applied: canonical
 
 Merge this PR, let the host redeploy, then wire head tags:
 
