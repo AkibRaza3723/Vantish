@@ -1,4 +1,6 @@
-const BASE_URL = '/api';
+const BASE_URL = import.meta.env.VITE_API_URL
+  ? `${import.meta.env.VITE_API_URL}/api`
+  : '/api'; // falls back to proxy in dev
 
 async function handleResponse(response) {
   if (!response.ok) {
