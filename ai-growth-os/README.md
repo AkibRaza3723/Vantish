@@ -1,4 +1,4 @@
-# Applied: meta_description
+# Applied: faq_schema
 
 Merge this PR, let the host redeploy, then wire head tags:
 
