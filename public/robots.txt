@@ -1,6 +1,10 @@
 User-agent: *
 Allow: /
-Disallow: /wp-admin/
-Disallow: /wp-login.php
 
-Sitemap: https://akibraza3723/sitemap.xml
+# Block private/auth routes from indexing
+Disallow: /dashboard/
+Disallow: /settings/
+Disallow: /api/
+Disallow: /auth/
+
+Sitemap: https://vantish.online/sitemap.xml

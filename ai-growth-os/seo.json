@@ -1,33 +1,57 @@
 {
-  "domain": "akibraza3723/vantish",
+  "domain": "vantish.online",
+  "brand": "Vantish",
+  "tagline": "The Anonymous LinkedIn. Real Work. No Filter.",
+  "description": "Vantish is an anonymous professional social platform — Glassdoor meets Reddit. Share real workplace experiences, unfiltered office truths, and professional confessions without revealing your identity.",
   "patches": [
     {
-      "patchId": "2907de3d-4854-4892-b189-44f27bf5ea5c",
+      "patchId": "vantish-canonical-001",
       "proposalType": "canonical",
       "before": "",
-      "after": "github://akibraza3723/Vantish/client/index.html",
-      "updatedAt": "2026-09-01T13:02:22.936Z"
+      "after": "https://vantish.online/",
+      "updatedAt": "2026-09-01T13:45:00.000Z"
     },
     {
-      "patchId": "7e8c3fb7-5861-41f2-879b-c9714bbff3b0",
-      "proposalType": "open_graph",
-      "before": "",
-      "after": "<meta property=\"og:type\" content=\"website\" />\n<meta property=\"og:site_name\" content=\"akibraza3723\" />\n<meta property=\"og:title\" content=\"Instruction.Md | akibraza3723\" />\n<meta property=\"og:description\" content=\"Discover akibraza3723: improve SEO, AI visibility, and on-page performance with clear, trusted website improvements.\" />\n<meta property=\"og:url\" content=\"github://akibraza3723/Vantish/client/instruction.md\" />",
-      "updatedAt": "2026-09-01T13:02:04.119Z"
-    },
-    {
-      "patchId": "035fc140-7ba6-4066-a43a-9a0387334f1c",
-      "proposalType": "faq_schema",
-      "before": "",
-      "after": "{\n  \"@context\": \"https://schema.org\",\n  \"@type\": \"FAQPage\",\n  \"mainEntity\": [\n    {\n      \"@type\": \"Question\",\n      \"name\": \"What is akibraza3723?\",\n      \"acceptedAnswer\": {\n        \"@type\": \"Answer\",\n        \"text\": \"akibraza3723 helps visitors find clear information about products and services.\"\n      }\n    },\n    {\n      \"@type\": \"Question\",\n      \"name\": \"How can I contact akibraza3723?\",\n      \"acceptedAnswer\": {\n        \"@type\": \"Answer\",\n        \"text\": \"Visit akibraza3723 and use the contact options listed on the site.\"\n      }\n    }\n  ]\n}",
-      "updatedAt": "2026-09-01T13:02:54.132Z"
-    },
-    {
-      "patchId": "08596cfd-4451-4892-a766-0b376fcaed80",
+      "patchId": "vantish-meta-description-001",
       "proposalType": "meta_description",
       "before": "",
-      "after": "Discover akibraza3723: improve SEO, AI visibility, and on-page performance with clear, trusted website improvements.",
-      "updatedAt": "2026-09-01T13:01:56.226Z"
+      "after": "Vantish is the anonymous LinkedIn — share real workplace experiences, unfiltered office truths, and professional confessions without revealing your identity. Think Glassdoor meets Reddit.",
+      "updatedAt": "2026-09-01T13:45:00.000Z"
+    },
+    {
+      "patchId": "vantish-open-graph-001",
+      "proposalType": "open_graph",
+      "before": "",
+      "after": "<meta property=\"og:type\" content=\"website\" />\n<meta property=\"og:site_name\" content=\"Vantish\" />\n<meta property=\"og:title\" content=\"Vantish — The Anonymous LinkedIn. Real Work. No Filter.\" />\n<meta property=\"og:description\" content=\"Share unfiltered workplace truths anonymously. Gossip, ground realities, and professional confessions — all without revealing who you are.\" />\n<meta property=\"og:url\" content=\"https://vantish.online/\" />\n<meta property=\"og:image\" content=\"https://vantish.online/og-image.png\" />",
+      "updatedAt": "2026-09-01T13:45:00.000Z"
+    },
+    {
+      "patchId": "vantish-twitter-card-001",
+      "proposalType": "twitter_card",
+      "before": "",
+      "after": "<meta name=\"twitter:card\" content=\"summary_large_image\" />\n<meta name=\"twitter:site\" content=\"@vantishapp\" />\n<meta name=\"twitter:title\" content=\"Vantish — The Anonymous LinkedIn. Real Work. No Filter.\" />\n<meta name=\"twitter:description\" content=\"Share unfiltered workplace truths anonymously. Gossip, ground realities, and professional confessions — all without revealing who you are.\" />\n<meta name=\"twitter:image\" content=\"https://vantish.online/og-image.png\" />",
+      "updatedAt": "2026-09-01T13:45:00.000Z"
+    },
+    {
+      "patchId": "vantish-faq-schema-001",
+      "proposalType": "faq_schema",
+      "before": "",
+      "after": "FAQPage JSON-LD with 4 questions — see head-snippet.html",
+      "updatedAt": "2026-09-01T13:45:00.000Z"
+    },
+    {
+      "patchId": "vantish-website-schema-001",
+      "proposalType": "website_schema",
+      "before": "",
+      "after": "WebSite JSON-LD with SearchAction — see head-snippet.html",
+      "updatedAt": "2026-09-01T13:45:00.000Z"
+    },
+    {
+      "patchId": "vantish-organization-schema-001",
+      "proposalType": "organization_schema",
+      "before": "",
+      "after": "Organization JSON-LD — see head-snippet.html",
+      "updatedAt": "2026-09-01T13:45:00.000Z"
     }
   ]
 }

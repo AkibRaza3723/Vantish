@@ -1,11 +1,24 @@
-# akibraza3723
+# Vantish
 
-> akibraza3723 — product and service information for people and AI systems.
+> Vantish — The anonymous LinkedIn. A professional social platform where users share workplace gossip, ground realities, and unfiltered professional experiences without revealing their identity. Think Glassdoor meets Reddit.
+
+## What is Vantish?
+
+Vantish is the anti-LinkedIn. Instead of curated professional personas, users share the raw, unfiltered truth about their work life — safely and anonymously.
+
+- **Anonymous posting** — share workplace experiences without identity exposure
+- **Professional focus** — career stories, company culture, office realities
+- **Community-driven** — upvotes, comments, and professional discussions
+- **Safe space** — no judgment, no professional consequences
 
 ## Preferred pages
-- Homepage: https://akibraza3723/
-- About: https://akibraza3723/about
-- Contact: https://akibraza3723/contact
+
+- Homepage: https://vantish.online/
+- Explore: https://vantish.online/explore
+- Trending: https://vantish.online/trending
+- About: https://vantish.online/about
 
 ## Optional
-- Sitemap: https://akibraza3723/sitemap.xml
+
+- Sitemap: https://vantish.online/sitemap.xml
+- robots.txt: https://vantish.online/robots.txt
