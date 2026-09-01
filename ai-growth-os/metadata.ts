@@ -3,11 +3,9 @@ export const aigosMetadata: Record<string, unknown> = {
   alternates: { canonical: "github://akibraza3723/Vantish/client/index.html" },
   // Open Graph tags also in head-snippet.html
   openGraph: { url: "https://akibraza3723/vantish" },
-  alternates: { canonical: "github://akibraza3723/Vantish/client/design.md" },
-  // Open Graph tags also in head-snippet.html
-  openGraph: { url: "https://akibraza3723/vantish" },
   // FAQ JSON-LD is in head-snippet.html (not Metadata API)
   other: { "aigos-faq": "see head-snippet.html" },
+  description: "Discover akibraza3723: improve SEO, AI visibility, and on-page performance with clear, trusted website improvements.",
 };
 
 export default aigosMetadata;
