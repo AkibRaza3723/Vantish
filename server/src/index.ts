@@ -10,13 +10,47 @@ import { routes } from './routes/index.js';
 const app: Express = express();
 const PORT = process.env.PORT || 3000;
 
-const corsOptions = {
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
-};
+const rawAllowedOrigins = [
+    process.env.FRONTEND_URL,
+    process.env.BETTER_AUTH_URL,
+    'https://vantish.online',
+    'https://www.vantish.online',
+    'http://localhost:5173',
+    'http://localhost:3000',
+].filter(Boolean) as string[];
 
+const allowedOrigins = rawAllowedOrigins.map(url => url.replace(/\/$/, ''));
+
+const corsOptions: cors.CorsOptions = {
+    origin: (origin, callback) => {
+        if (!origin) return callback(null, true);
+        const cleanOrigin = origin.replace(/\/$/, '');
+        if (
+            allowedOrigins.includes(cleanOrigin) ||
+            cleanOrigin.endsWith('.vercel.app') ||
+            cleanOrigin.includes('localhost') ||
+            cleanOrigin.includes('127.0.0.1')
+        ) {
+            callback(null, true);
+        } else {
+            callback(null, true); // Allow any requesting origin while returning exact Origin header for credentials
+        }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: [
+        'Content-Type',
+        'Authorization',
+        'Cookie',
+        'X-Requested-With',
+        'Accept',
+        'Origin',
+        'x-better-auth-origin',
+        'baggage',
+        'sentry-trace'
+    ],
+    exposedHeaders: ['Set-Cookie'],
+};
 
 app.use(cors(corsOptions));
 
