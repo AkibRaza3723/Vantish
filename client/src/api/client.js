@@ -7,16 +7,22 @@ async function handleResponse(response) {
     let errorMsg = `HTTP Error ${response.status}`;
     try {
       const data = await response.json();
-      if (data.fieldErrors && typeof data.fieldErrors === 'object') {
-        const details = Object.entries(data.fieldErrors)
-          .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(', ') : v}`)
+      const rawFieldErrors = data.fieldErrors || (typeof data.error === 'object' && data.error !== null ? data.error : null);
+      
+      if (rawFieldErrors && typeof rawFieldErrors === 'object') {
+        const details = Object.entries(rawFieldErrors)
+          .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(', ') : (typeof v === 'object' ? JSON.stringify(v) : v)}`)
           .join(' | ');
-        errorMsg = `${data.error || 'Validation failed'}: ${details}`;
-      } else if (data.error) {
+        errorMsg = typeof data.error === 'string' ? `${data.error}: ${details}` : details || 'Validation failed';
+      } else if (typeof data.error === 'string') {
         errorMsg = data.error;
+      } else if (typeof data.message === 'string') {
+        errorMsg = data.message;
+      } else if (data.error && typeof data.error.message === 'string') {
+        errorMsg = data.error.message;
       }
     } catch (e) {
-      // Not JSON
+      // Not JSON or empty body
     }
     throw new Error(errorMsg);
   }

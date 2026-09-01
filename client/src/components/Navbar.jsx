@@ -147,7 +147,7 @@ const Navbar = ({ onPostClick }) => {
                 color: 'var(--color-primary)',
                 letterSpacing: '-0.4px',
                 lineHeight: 1,
-                marginRight: '5 rem',
+                marginRight: '0.75rem',
               }}>Vantish</span>
             </Link>
             

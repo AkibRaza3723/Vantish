@@ -124,7 +124,10 @@ const Onboarding = () => {
     <div className="onboarding-page">
       <div className="onboarding-container card"> 
         <div className="onboarding-header">
-          <h1 className="logo-text">Vantish</h1>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '12px' }}>
+            <img src="/logo.png" alt="Vantish" style={{ height: '32px', objectFit: 'contain' }} />
+            <h1 className="logo-text" style={{ margin: 0 }}>Vantish</h1>
+          </div>
           <div className="step-indicator">
             <span className={step >= 1 ? 'active' : ''}>1</span>
             <span className={step >= 2 ? 'active' : ''}>2</span>

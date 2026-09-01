@@ -11,7 +11,7 @@ import { NotificationType } from "../generated/prisma/enums.js";
 export async function createComment(req: Request, res: Response) {
     const parsed = createCommentSchema.safeParse(req.body);
     if (!parsed.success) {
-        return res.status(400).json({ error: parsed.error.flatten().fieldErrors });
+        return res.status(400).json({ error: "Validation failed", fieldErrors: parsed.error.flatten().fieldErrors });
     }
     const { postId, content } = parsed.data;
     const authorId = req.session.user.id;
@@ -64,7 +64,7 @@ export async function createComment(req: Request, res: Response) {
 export async function updateComment(req: Request, res: Response) {
     const parsed = updateCommentSchema.safeParse(req.body);
     if (!parsed.success) {
-        return res.status(400).json({ error: parsed.error.flatten().fieldErrors });
+        return res.status(400).json({ error: "Validation failed", fieldErrors: parsed.error.flatten().fieldErrors });
     }
     const { content } = parsed.data;
     const commentId = String(req.params.id);   // cast: req.params is string | string[] | undefined
@@ -134,7 +134,7 @@ export async function reportComment(req: Request, res: Response) {
 
     const parsed = reportCommentSchema.safeParse(req.body);
     if (!parsed.success) {
-        return res.status(400).json({ error: parsed.error.flatten().fieldErrors });
+        return res.status(400).json({ error: "Validation failed", fieldErrors: parsed.error.flatten().fieldErrors });
     }
     const { reason } = parsed.data;
 

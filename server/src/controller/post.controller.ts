@@ -12,7 +12,7 @@ export async function createPost(req: Request, res: Response) {
     const parsed = createPostSchema.safeParse(req.body);
 
     if (!parsed.success) {
-        return res.status(400).json({ error: parsed.error.flatten().fieldErrors });
+        return res.status(400).json({ error: "Validation failed", fieldErrors: parsed.error.flatten().fieldErrors });
     }
 
     const { content, category, stressRating } = parsed.data;
@@ -235,7 +235,7 @@ export async function updatePost(req: Request, res: Response) {
     const parsed = updatePostSchema.safeParse(req.body);
 
     if (!parsed.success) {
-        return res.status(400).json({ error: parsed.error.flatten().fieldErrors });
+        return res.status(400).json({ error: "Validation failed", fieldErrors: parsed.error.flatten().fieldErrors });
     }
 
     try {
