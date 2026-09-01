@@ -1,8 +1,8 @@
 {
   "domain": "akibraza3723/vantish",
-  "patchId": "af7853f8-e94f-41ee-867c-228312b58333",
-  "proposalType": "canonical",
+  "patchId": "035fc140-7ba6-4066-a43a-9a0387334f1c",
+  "proposalType": "faq_schema",
   "before": "",
-  "after": "github://akibraza3723/Vantish/client/design.md",
-  "updatedAt": "2026-09-01T13:02:34.946Z"
+  "after": "{\n  \"@context\": \"https://schema.org\",\n  \"@type\": \"FAQPage\",\n  \"mainEntity\": [\n    {\n      \"@type\": \"Question\",\n      \"name\": \"What is akibraza3723?\",\n      \"acceptedAnswer\": {\n        \"@type\": \"Answer\",\n        \"text\": \"akibraza3723 helps visitors find clear information about products and services.\"\n      }\n    },\n    {\n      \"@type\": \"Question\",\n      \"name\": \"How can I contact akibraza3723?\",\n      \"acceptedAnswer\": {\n        \"@type\": \"Answer\",\n        \"text\": \"Visit akibraza3723 and use the contact options listed on the site.\"\n      }\n    }\n  ]\n}",
+  "updatedAt": "2026-09-01T13:02:54.132Z"
 }
