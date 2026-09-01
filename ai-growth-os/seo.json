@@ -1,5 +1,10 @@
 {
   "domain": "akibraza3723/vantish",
+  "patchId": "7e8c3fb7-5861-41f2-879b-c9714bbff3b0",
+  "proposalType": "open_graph",
+  "before": "",
+  "after": "<meta property=\"og:type\" content=\"website\" />\n<meta property=\"og:site_name\" content=\"akibraza3723\" />\n<meta property=\"og:title\" content=\"Instruction.Md | akibraza3723\" />\n<meta property=\"og:description\" content=\"Discover akibraza3723: improve SEO, AI visibility, and on-page performance with clear, trusted website improvements.\" />\n<meta property=\"og:url\" content=\"github://akibraza3723/Vantish/client/instruction.md\" />",
+  "updatedAt": "2026-09-01T13:02:04.119Z"
   "patchId": "035fc140-7ba6-4066-a43a-9a0387334f1c",
   "proposalType": "faq_schema",
   "before": "",
