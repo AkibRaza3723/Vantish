@@ -1,8 +1,8 @@
 {
   "domain": "akibraza3723/vantish",
-  "patchId": "03dcc8f6-4b07-4000-8d5e-3262de3372a1",
-  "proposalType": "open_graph",
+  "patchId": "035fc140-7ba6-4066-a43a-9a0387334f1c",
+  "proposalType": "faq_schema",
   "before": "",
-  "after": "<meta property=\"og:type\" content=\"website\" />\n<meta property=\"og:site_name\" content=\"akibraza3723\" />\n<meta property=\"og:title\" content=\"Index.Html | akibraza3723\" />\n<meta property=\"og:description\" content=\"Discover akibraza3723: improve SEO, AI visibility, and on-page performance with clear, trusted website improvements.\" />\n<meta property=\"og:url\" content=\"github://akibraza3723/Vantish/client/index.html\" />",
-  "updatedAt": "2026-09-01T13:02:16.666Z"
+  "after": "{\n  \"@context\": \"https://schema.org\",\n  \"@type\": \"FAQPage\",\n  \"mainEntity\": [\n    {\n      \"@type\": \"Question\",\n      \"name\": \"What is akibraza3723?\",\n      \"acceptedAnswer\": {\n        \"@type\": \"Answer\",\n        \"text\": \"akibraza3723 helps visitors find clear information about products and services.\"\n      }\n    },\n    {\n      \"@type\": \"Question\",\n      \"name\": \"How can I contact akibraza3723?\",\n      \"acceptedAnswer\": {\n        \"@type\": \"Answer\",\n        \"text\": \"Visit akibraza3723 and use the contact options listed on the site.\"\n      }\n    }\n  ]\n}",
+  "updatedAt": "2026-09-01T13:02:54.132Z"
 }
