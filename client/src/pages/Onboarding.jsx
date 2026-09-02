@@ -94,20 +94,20 @@ const Onboarding = () => {
     try {
       // Build request body per Zod validator
       const payload = {
-        username: formData.username,
-        bio: formData.bio || undefined,
+        username: formData.username.trim(),
+        bio: formData.bio?.trim() || undefined,
         role: formData.role,
-        organizations: formData.organizations,
+        organizations: formData.organizations.trim(),
         organization_type: formData.organization_type,
-        course: formData.course,
-        avatarUrl: getAvatarUrl(formData.username),
+        course: formData.course.trim(),
+        avatarUrl: getAvatarUrl(formData.username.trim()),
       };
 
       if (formData.role === 'student') {
         payload.graduationYear = Number(formData.graduationYear);
       } else {
-        payload.position = formData.position;
-        payload.Experience = Number(formData.Experience);
+        payload.position = (formData.position || '').trim();
+        payload.Experience = Number(formData.Experience) || 0;
       }
 
       const res = await usersApi.completeProfile(payload);
@@ -124,7 +124,10 @@ const Onboarding = () => {
     <div className="onboarding-page">
       <div className="onboarding-container card"> 
         <div className="onboarding-header">
-          <h1 className="logo-text">Vantish</h1>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '12px' }}>
+            <img src="/logo.png" alt="Vantish" style={{ height: '32px', objectFit: 'contain' }} />
+            <h1 className="logo-text" style={{ margin: 0 }}>Vantish</h1>
+          </div>
           <div className="step-indicator">
             <span className={step >= 1 ? 'active' : ''}>1</span>
             <span className={step >= 2 ? 'active' : ''}>2</span>
