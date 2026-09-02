@@ -1,0 +1,14 @@
+name: Keep Vantish Backend Alive
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+jobs:
+  keep-alive:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Ping Vantish backend
+        run: curl -fsS https://vantish.onrender.com/health
