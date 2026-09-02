@@ -11,4 +11,4 @@ jobs:
 
     steps:
       - name: Ping Vantish backend
-        run: curl -fsS https://vantish.onrender.com/health
+        run: curl -fsS https://vantish.onrender.com/api/health
