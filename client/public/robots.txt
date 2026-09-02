@@ -1,10 +1,17 @@
 User-agent: *
 Allow: /
+Allow: /signup
+Allow: /signin
 
-# Block private/auth routes from indexing
+# Block private/auth-gated routes from indexing
 Disallow: /dashboard/
 Disallow: /settings/
 Disallow: /api/
 Disallow: /auth/
+Disallow: /feed/
+Disallow: /network/
+Disallow: /notifications/
+Disallow: /profile/
+Disallow: /onboarding/
 
 Sitemap: https://vantish.online/sitemap.xml
