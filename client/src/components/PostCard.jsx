@@ -233,12 +233,12 @@ const PostCard = memo(({ post, onPostRemoved }) => {
     <div className="card post-card">
       {/* Post Header */}
       <div className="post-header">
-        <Link to={`/profile/${post.authorId}`} className="avatar" style={{ width: 44, height: 44, flexShrink: 0 }}>
+        <Link to={`/profile/${post.authorId}`} className="avatar post-avatar" style={{ width: 44, height: 44, flexShrink: 0 }}>
           <img src={post.author?.avatarUrl || getAvatarUrl(post.author?.username)} alt={post.author?.username || 'anonymous'} className="avatar-img" />
         </Link>
         
-        <div className="post-meta" style={{ flexGrow: 1 }}>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', flexWrap: 'wrap' }}>
+        <div className="post-meta">
+          <div className="post-author-row">
             <span className="text-h3" style={{ margin: 0, color: 'var(--color-text-primary)', fontSize: '15px' }}>
               Anonymous
             </span>
@@ -251,10 +251,21 @@ const PostCard = memo(({ post, onPostRemoved }) => {
               • {formatRelativeTime(post.createdAt)}
             </span>
           </div>
+
+          {post.author?.username && (
+            <Link
+              to={`/profile/${post.authorId}`}
+              className="post-author-username"
+            >
+              ({post.author.username.startsWith('@') ? post.author.username : `@${post.author.username}`})
+            </Link>
+          )}
           
           <div className="post-badges-row">
-            <span className="category-badge">{renderCategoryName(post.category)}</span>
-            <span className="stress-badge">Stress: {'🔥'.repeat(post.stressRating || 1)}</span>
+            {post.category && (
+              <span className="category-badge">{renderCategoryName(post.category)}</span>
+            )}
+            <span className="stress-badge">Rating: {'🔥'.repeat(post.stressRating || 1)}</span>
           </div>
         </div>
 

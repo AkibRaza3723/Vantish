@@ -65,7 +65,7 @@ routes(app);
 
 app.all('/api/auth/*splat', toNodeHandler(auth));
 
-app.get('/health', (req: Request, res: Response) => {
+app.get('/api/health', (req: Request, res: Response) => {
     res.send('OK');
 });
 

@@ -44,7 +44,7 @@ export async function createPost(req: Request, res: Response) {
             },
             include: {
                 author: {
-                    select: { id: true, username: true, avatarUrl: true },
+                    select: { id: true, username: true, avatarUrl: true, organizations: true },
                 },
             },
         });
@@ -269,7 +269,7 @@ export async function updatePost(req: Request, res: Response) {
             data: data,
             include: {
                 author: {
-                    select: { id: true, username: true, avatarUrl: true },
+                    select: { id: true, username: true, avatarUrl: true, organizations: true },
                 },
             },
         });

@@ -3,7 +3,7 @@ name: Keep Vantish Backend Alive
 on:
   schedule:
     - cron: "*/10 * * * *"
-  workflow_dispatch:
+  workflow_dispatch: 
 
 jobs:
   keep-alive:
@@ -11,4 +11,4 @@ jobs:
 
     steps:
       - name: Ping Vantish backend
-        run: curl -fsS https://vantish.onrender.com/health
+        run: curl -fsS https://vantish.onrender.com/api/health

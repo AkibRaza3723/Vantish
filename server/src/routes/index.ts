@@ -5,8 +5,7 @@ import userRouter from "./user.routes.js";
 import connectionRouter from "./connection.routes.js";
 import notificationRouter from "./notification.js";
 
-export function routes(app : Express){
-    
+export function routes(app: Express) {
     app.use("/api/v1/post", postRouter);
     app.use("/api/v1/comment", commentRouter);
     // votes are nested under postRouter → /api/post/:postId/vote
